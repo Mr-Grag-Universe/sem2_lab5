@@ -13,26 +13,26 @@
 #include "MyString.h"
 #include "math.h"
 
-//Error add_tree_dialog(KD_tree * tree) {
-//    printf("Enter your key: ");
-//    KD_key * key = KD_key_enter(tree->number_of_dimensions);
-//    if (key == NULL) {
-//        fprintf(stderr, "Entered key is null!\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    printf("Enter your info: ");
-//    KD_info * info = KD_info_enter();
-//    if (info == NULL) {
-//        fprintf(stderr, "Entered info is null!\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    KD_item * item = KD_item_init(tree->number_of_dimensions, key, info);
-//
-//    return KD_tree_add(tree, item);
-//}
-//
+Error add_vertex_dialog(Graph * graph) {
+    printf("Enter your label: ");
+    Vertex * v = vertex_enter();
+    if (v == NULL) {
+        fprintf(stderr, "Entered vertex is null!\n");
+        return WRONG_INPUT_FROM_STREAM;
+    }
+
+    Vertex * v1 = graph->get_vertex(graph, v->info);
+    if (v1) {
+        printf("there is a vertex with such name.\n");
+        v->free(v);
+        return IT_IS_OK;
+    }
+
+    Error report = graph->add_vertex(graph, v);
+
+    return report;
+}
+
 //Error delete_tree_dialog(KD_tree * tree) {
 //    printf("Enter your key: ");
 //    KD_key * key = KD_key_enter(tree->number_of_dimensions);
@@ -323,33 +323,36 @@
 //
 //    return tree;
 //}
-//
-//Error dialog_update_graphviz(KD_tree * tree) {
-//    printf("enter your output file's name: ");
-//    char * out = get_line();
-//    if (out == NULL)
-//        return WRONG_INPUT;
-//    Error report = update_graph(tree);
-//
-//    size_t len = strlen(out);
-//
-//    char * c1 = "dot -v -Tpng -o ";
-//    char * c2 = " graph.gv";
-//    size_t c1_len = strlen(c1);
-//    size_t c2_len = strlen(c2);
-//
-//    char * command = calloc(len + c1_len + c2_len + 1, sizeof(char));
-//    memmove(command, c1, c1_len + 1);
-//    memmove(command + c1_len, out, len + 1);
-//    memmove(command + c1_len + len, c2, c2_len + 1);
-//
-//    system(command);
-//    system("dot -v -Tpng -o png1.png graph.gv");
-//    //if (report == IT_IS_OK)
-//        //remove("graph.gv");
-//
-//    free(command);
-//    free(out);
-//
-//    return report;
-//}
+
+Error dialog_update_graphviz(Graph * graph) {
+    printf("enter your output file's name: ");
+    char * out = get_line();
+    if (out == NULL)
+        return WRONG_INPUT_FROM_STREAM;
+
+    FILE * file = fopen("graph.gv", "w");
+    Error report = graph->print(graph, file);
+    fclose(file);
+
+    size_t len = strlen(out);
+
+    char * c1 = "dot -v -Tpng -o ";
+    char * c2 = " graph.gv";
+    size_t c1_len = strlen(c1);
+    size_t c2_len = strlen(c2);
+
+    char * command = calloc(len + c1_len + c2_len + 1, sizeof(char));
+    memmove(command, c1, c1_len + 1);
+    memmove(command + c1_len, out, len + 1);
+    memmove(command + c1_len + len, c2, c2_len + 1);
+
+    system(command);
+    system("dot -v -Tpng -o png1.png graph.gv");
+    //if (report == IT_IS_OK)
+        //remove("graph.gv");
+
+    free(command);
+    free(out);
+
+    return report;
+}

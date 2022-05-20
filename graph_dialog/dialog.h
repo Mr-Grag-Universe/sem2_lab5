@@ -5,8 +5,8 @@
 #ifndef LAB4_PROT_DIALOG_H
 #define LAB4_PROT_DIALOG_H
 #include "Errors.h"
-//
-//Error add_tree_dialog(KD_tree * tree);
+
+Error add_vertex_dialog(Graph * graph);
 //Error print_tree_dialog(const KD_tree * tree);
 //Error delete_tree_dialog(KD_tree * tree);
 //Error get_tree_dialog(const KD_tree * tree);
@@ -16,5 +16,5 @@
 //Error random_dialog(KD_tree ** tree);
 //Error read_tree_dialog(KD_tree ** tree);
 //KD_tree * number_of_words_in_file();
-//Error dialog_update_graphviz(KD_tree * tree);
+Error dialog_update_graphviz(Graph * graph);
 #endif //LAB4_PROT_DIALOG_H

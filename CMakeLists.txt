@@ -9,6 +9,9 @@ add_subdirectory(graph_dialog)
 set(CMAKE_C_STANDARD 99)
 
 add_executable(lab5 main.c)
-target_link_libraries(lab5 mygraph)
+
 target_link_libraries(dialog mylib)
 target_link_libraries(dialog mygraph)
+
+target_link_libraries(lab5 mygraph)
+target_link_libraries(lab5 dialog)

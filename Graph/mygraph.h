@@ -51,6 +51,7 @@ struct Vertex {
 };
 Vertex * vertex_init(char * info, AdjacencyList * in_list, AdjacencyList * out_list);
 Error vertex_free(Vertex * vertex);
+Vertex * vertex_enter();
 
 //============================ORIENTATION==========================
 
@@ -66,7 +67,11 @@ struct Edge {
     Vertex * v2;
     int weight;
     Orientation orientation;
+
+    Error (*free)(Edge *);
 };
+Edge * edge_init(Vertex * v1, Vertex * v2, Orientation orientation, int weight);
+Error edge_free(Edge * edge);
 
 //============================GRAPH===========================
 
@@ -78,11 +83,13 @@ struct Graph {
     size_t number_of_edges;
 
     Error (*add_vertex)(Graph *, Vertex *);
+    Error (*free)(Graph * graph);
     Error (*add_edge)(Graph *, Edge *);
     Vertex * (*get_vertex)(Graph *, char *);
     Error (*print)(Graph *, FILE *);
 };
 Graph * graph_init(Vertex ** vertexes, Edge ** edges);
+Error graph_free(Graph * graph);
 Error graph_add_vertex(Graph * graph, Vertex * vertex);
 Error graph_add_edge(Graph * graph, Edge * edge);
 Vertex * graph_get_vertex(Graph * graph, char * info);

@@ -26,6 +26,7 @@ Graph * graph_init(Vertex ** vertexes, Edge ** edges) {
     graph->add_edge = graph_add_edge;
     graph->get_vertex = graph_get_vertex;
     graph->print = print_graph;
+    graph->free = graph_free;
 
     return graph;
 }
@@ -111,4 +112,23 @@ Vertex * graph_get_vertex(Graph * graph, char * info) {
     }
 
     return NULL;
+}
+
+Error graph_free(Graph * graph) {
+    if (graph == NULL) {
+        fprintf(stderr, "null graph in freeing.\n");
+        return FREEING_OF_NULL_PTR;
+    }
+
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i)
+        graph->vertexes[i]->free(graph->vertexes[i]);
+    for (size_t i = 0; i < graph->number_of_edges; ++i)
+        graph->edges[i]->free(graph->edges[i]);
+
+    free(graph->edges);
+    free(graph->vertexes);
+
+    free(graph);
+
+    return IT_IS_OK;
 }

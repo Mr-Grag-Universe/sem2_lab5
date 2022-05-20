@@ -36,7 +36,21 @@ Error vertex_free(Vertex * vertex) {
     if (vertex->out_list)
         vertex->out_list->free(vertex->out_list);
 
+    free(vertex->info);
     free(vertex);
 
     return IT_IS_OK;
+}
+
+Vertex * vertex_enter() {
+    char * line = NULL;
+    do {
+        if (line)
+            free(line);
+        line = get_line();
+    } while (line == NULL || line[0] == '\0');
+
+    Vertex * vertex = vertex_init(line, NULL, NULL);
+
+    return vertex;
 }
