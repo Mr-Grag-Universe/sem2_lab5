@@ -13,5 +13,7 @@ add_executable(lab5 main.c)
 target_link_libraries(dialog mylib)
 target_link_libraries(dialog mygraph)
 
+target_link_libraries(mygraph mylib)
+
 target_link_libraries(lab5 mygraph)
 target_link_libraries(lab5 dialog)

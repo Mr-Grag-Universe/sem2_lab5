@@ -66,25 +66,22 @@ Error graph_add_edge(Graph * graph, Edge * edge) {
     }
 
     Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
-    if (v1 == NULL) {
-        graph->add_vertex(graph, edge->v1);
-        v1 = graph->get_vertex(graph, edge->v1->info);
-    }
     Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
-    if (v2 == NULL) {
-        graph->add_vertex(graph, edge->v2);
-        v2 = graph->get_vertex(graph, edge->v2->info);
-    }
 
-    // проверяем что действительно добавили
     if (v1 == NULL || v2 == NULL) {
-        fprintf(stderr, "Error!!! v1 or v2 was not added.\n");
-        exit(RUNTIME_ERROR);
+        fprintf(stderr, "there is not vertex such as in edge.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
     }
+//
+//    // проверяем что действительно добавили
+//    if (v1 == NULL || v2 == NULL) {
+//        fprintf(stderr, "Error!!! v1 or v2 was not added.\n");
+//        exit(RUNTIME_ERROR);
+//    }
 
     if (edge->orientation == V1_to_V2) {
-        v1->out_list->add(v1->out_list, edge->v2, edge->weight);
-        v2->in_list->add(v2->in_list, edge->v1, edge->weight);
+        v1->add_edge(v1, edge);
+        v2->add_edge(v2, edge);
     }
     else {
         v2->out_list->add(v2->out_list, edge->v1, edge->weight);
@@ -132,3 +129,4 @@ Error graph_free(Graph * graph) {
 
     return IT_IS_OK;
 }
+

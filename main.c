@@ -55,6 +55,7 @@ bool execute_command(Graph ** graph, Command command) {
             return false;
         }
         case ADD_EDGE: {
+            add_edge_dialog(*graph);
             return false;
         }
         case FIND_VERTEX: {

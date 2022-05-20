@@ -3,9 +3,12 @@
 //
 #include "Errors.h"
 #include "mygraph.h"
+#include "KGetLine.h"
+#include "MyString.h"
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "stdbool.h"
 
 Edge * edge_init(Vertex * v1, Vertex * v2, Orientation orientation, int weight) {
     Edge * edge = malloc(sizeof(Edge));
@@ -26,4 +29,33 @@ Error edge_free(Edge * edge) {
     }
     free(edge);
     return IT_IS_OK;
+}
+
+Edge * edge_enter(bool enter_weight) {
+    printf("Enter your label1: ");
+    char * v1_label = NULL;
+    do {
+        if (v1_label)
+            free(v1_label);
+        v1_label = get_line();
+    } while (v1_label == NULL || v1_label[0] == '\0');
+
+    printf("Enter your label2: ");
+    char * v2_label = NULL;
+    do {
+        if (v2_label)
+            free(v2_label);
+        v2_label = get_line();
+    } while (v2_label == NULL || v2_label[0] == '\0');
+
+    Vertex * v1 = vertex_init(v1_label);
+    Vertex * v2 = vertex_init(v2_label);
+
+    Edge * edge = edge_init(v1, v2, V1_to_V2, 0);
+    if (enter_weight) {
+        int weight = get_int();
+        edge->weight = weight;
+    }
+
+    return edge;
 }

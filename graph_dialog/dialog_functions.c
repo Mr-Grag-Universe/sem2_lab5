@@ -33,6 +33,23 @@ Error add_vertex_dialog(Graph * graph) {
     return report;
 }
 
+Error add_edge_dialog(Graph * graph) {
+    Edge * edge = edge_enter(0);
+
+    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+
+    if (v1 == NULL || v2 == NULL) {
+        printf("there is no such vertex in this graph.\nplease, add it before creating edge.\n");
+        return WRONG_INPUT_FROM_STREAM;
+    }
+    // можно сделать добавление если нет вершины
+
+    Error report = graph->add_edge(graph, edge);
+
+    return report;
+}
+
 //Error delete_tree_dialog(KD_tree * tree) {
 //    printf("Enter your key: ");
 //    KD_key * key = KD_key_enter(tree->number_of_dimensions);

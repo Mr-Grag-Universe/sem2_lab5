@@ -7,7 +7,7 @@
 #include "Errors.h"
 
 Error add_vertex_dialog(Graph * graph);
-//Error print_tree_dialog(const KD_tree * tree);
+Error add_edge_dialog(Graph * graph);
 //Error delete_tree_dialog(KD_tree * tree);
 //Error get_tree_dialog(const KD_tree * tree);
 //Error traversal_tree_dialog(const KD_tree* tree);

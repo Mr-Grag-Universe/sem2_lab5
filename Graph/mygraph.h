@@ -6,6 +6,8 @@
 #define LAB5_MYGRAPH_H
 #include "stdlib.h"
 #include "stdio.h"
+#include "stdbool.h"
+
 #include "Errors.h"
 
 typedef struct AdjacencyListEl AdjacencyListEl;
@@ -48,10 +50,12 @@ struct Vertex {
     char * info;
 
     Error (* free)(Vertex*);
+    Error (* add_edge)(Vertex*, Edge*);
 };
-Vertex * vertex_init(char * info, AdjacencyList * in_list, AdjacencyList * out_list);
+Vertex * vertex_init(char * info);
 Error vertex_free(Vertex * vertex);
 Vertex * vertex_enter();
+Error vertex_add_edge(Vertex * vertex, Edge * edge);
 
 //============================ORIENTATION==========================
 
@@ -72,6 +76,7 @@ struct Edge {
 };
 Edge * edge_init(Vertex * v1, Vertex * v2, Orientation orientation, int weight);
 Error edge_free(Edge * edge);
+Edge * edge_enter(bool enter_weight);
 
 //============================GRAPH===========================
 

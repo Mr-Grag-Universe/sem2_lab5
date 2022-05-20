@@ -47,6 +47,7 @@ AdjacencyList * adj_list_init(Vertex ** vertexes, size_t number_of_vertexes) {
     }
 
     list->free = adj_list_free;
+    list->add = adj_list_add;
 
     if (vertexes == NULL) {
         list->number_of_el = 0;
