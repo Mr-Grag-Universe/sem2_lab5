@@ -89,11 +89,13 @@ Error graph_add_edge(Graph * graph, Edge * edge) {
         v2->add_edge(v2, edge);
     }
     else {
-        v2->out_list->add(v2->out_list, edge->v1, edge->weight);
-        v1->in_list->add(v1->in_list, edge->v2, edge->weight);
+        v1->add_edge(v2, edge);
+        v2->add_edge(v1, edge);
+//        v2->out_list->add(v2->out_list, edge->v1, edge->weight);
+//        v1->in_list->add(v1->in_list, edge->v2, edge->weight);
     }
 
-    graph->edges = realloc(graph->edges, sizeof(Edge) * (graph->number_of_edges + 1));
+    graph->edges = realloc(graph->edges, sizeof(Edge*) * (graph->number_of_edges + 1));
     graph->edges[graph->number_of_edges] = edge;
 
     graph->number_of_edges++;
@@ -217,7 +219,7 @@ Error graph_delete_edge(Graph * graph, Edge * edge) {
     }
 
     graph->edges[ind]->free(graph->edges[ind]);
-    memmove(graph->edges + ind, graph->edges + ind + 1, sizeof(Edge *) * (graph->number_of_edges-ind));
+    memmove(graph->edges + ind, graph->edges + ind + 1, sizeof(Edge *) * (graph->number_of_edges-ind-1));
     graph->number_of_edges--;
     graph->edges = realloc(graph->edges, sizeof(Edge *) * (graph->number_of_edges));
 
@@ -238,14 +240,15 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     AdjacencyList *in_list = vertex->in_list;
     AdjacencyList *out_list = vertex->out_list;
 
-    AdjacencyListEl *el = in_list->head;
-    for (size_t i = 0; i < in_list->number_of_el; ++i) {
-        el->vertex->out_list->delete(el->vertex->out_list, vertex->info);
-    }
-    el = out_list->head;
-    for (size_t i = 0; i < out_list->number_of_el; ++i) {
-        el->vertex->in_list->delete(el->vertex->in_list, vertex->info);
-    }
+    // что это ???!!!
+//    AdjacencyListEl *el = in_list->head;
+//    for (size_t i = 0; i < in_list->number_of_el; ++i) {
+//        el->vertex->out_list->delete(el->vertex->out_list, vertex->info);
+//    }
+//    el = out_list->head;
+//    for (size_t i = 0; i < out_list->number_of_el; ++i) {
+//        el->vertex->in_list->delete(el->vertex->in_list, vertex->info);
+//    }
 
     size_t ind = graph->get_vertex_index(graph, vertex->info);
     if (ind == graph->number_of_vertexes) {
@@ -270,7 +273,7 @@ Error graph_delete_vertex(Graph * graph, char * name) {
 
     graph->vertexes[ind]->free(graph->vertexes[ind]);
 
-    memmove(graph->vertexes + ind, graph->vertexes + ind + 1, sizeof(Vertex*) * (graph->number_of_vertexes-ind));
+    memmove(graph->vertexes + ind, graph->vertexes + ind + 1, sizeof(Vertex*) * (graph->number_of_vertexes-ind-1));
     graph->number_of_vertexes--;
     graph->vertexes = realloc(graph->vertexes, sizeof(Vertex*) * (graph->number_of_vertexes));
     if (graph->number_of_vertexes == 0) {
@@ -280,3 +283,18 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     return IT_IS_OK;
 }
 
+Vertex * BFS(Graph * graph, Vertex * start_vertex, char * name) {
+    if (graph == NULL) {
+        fprintf(stderr, "null graph in BFS.\n");
+        return NULL;
+    }
+    if (graph->vertexes == NULL) {
+        return NULL;
+    }
+    if (start_vertex == NULL) {
+        start_vertex = graph->vertexes[0];
+        fprintf(stderr, "start vertex is null, so we started from 0 index vertex.\n");
+    }
+
+
+}

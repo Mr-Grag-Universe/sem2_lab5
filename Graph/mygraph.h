@@ -38,11 +38,13 @@ struct AdjacencyList {
     Error (*free)(AdjacencyList *);
     Error (*add)(AdjacencyList *, Vertex *, int weight);
     Error (*delete)(AdjacencyList *, char * name);
+    Error (*print)(AdjacencyList *);
 };
 AdjacencyList * adj_list_init(Vertex ** vertexes, size_t number_of_vertexes);
 Error adj_list_free(AdjacencyList * list);
 Error adj_list_add(AdjacencyList *, Vertex *, int weight);
 Error adj_list_delete(AdjacencyList * list, char * name);
+Error adj_list_print(AdjacencyList * list);
 
 //==========================VERTEX=========================
 

@@ -50,6 +50,7 @@ AdjacencyList * adj_list_init(Vertex ** vertexes, size_t number_of_vertexes) {
     list->free = adj_list_free;
     list->add = adj_list_add;
     list->delete = adj_list_delete;
+    list->print = adj_list_print;
 
     if (vertexes == NULL) {
         list->number_of_el = 0;
@@ -115,6 +116,7 @@ Error adj_list_delete(AdjacencyList * list, char * name) {
         fprintf(stderr, "there is not such element in this list.\n");
         return RUNTIME_ERROR;
     }
+    list->number_of_el--;
     if (el == list->head) {
         el_pr = el->next;
         el->free(el);
@@ -149,6 +151,22 @@ Error adj_list_free(AdjacencyList * list) {
     list->tail = NULL;
 
     free(list);
+
+    return IT_IS_OK;
+}
+
+Error adj_list_print(AdjacencyList * list) {
+    if (list == NULL) {
+        fprintf(stderr, "null list in it's printing.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    AdjacencyListEl * el = list->head;
+    while (el) {
+        printf("name: %s, weight: %d; ", el->vertex->info, el->weight);
+        el = el->next;
+    }
+    if (list->number_of_el)
+        printf("\n");
 
     return IT_IS_OK;
 }

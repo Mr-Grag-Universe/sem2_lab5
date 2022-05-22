@@ -12,6 +12,7 @@ typedef enum Commands {
     DELETE_VERTEX,
     DELETE_EDGE,
     DELETE_ALl,
+    PRINT,
     TRAVERSAL,
     TIMING,
     RANDOM_GENERATE,

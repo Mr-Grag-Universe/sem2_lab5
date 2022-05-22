@@ -123,6 +123,24 @@ Error get_graph_dialog(const Graph * graph) {
     return IT_IS_OK;
 }
 
+Error graph_print_as_lists(const Graph * graph) {
+    if (graph == NULL) {
+        fprintf(stderr, "null graph in printing.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+        graph->vertexes[i]->print(graph->vertexes[i]);
+        printf("out list:\n");
+        graph->vertexes[i]->out_list->print(graph->vertexes[i]->out_list);
+        printf("in list:\n");
+        graph->vertexes[i]->in_list->print(graph->vertexes[i]->in_list);
+        printf("\n");
+    }
+
+    return IT_IS_OK;
+}
+
 //Error traversal_tree_dialog(const KD_tree * tree) {
 //    printf("Do you wanna get all items or items, which keys bigger then entered.\n1) all\t2) some\n");
 //    int chose_all_or_bigger_then_key = 0;
