@@ -8,8 +8,9 @@
 
 Error add_vertex_dialog(Graph * graph);
 Error add_edge_dialog(Graph * graph);
-//Error delete_tree_dialog(KD_tree * tree);
-//Error get_tree_dialog(const KD_tree * tree);
+Error delete_vertex_dialog(Graph * graph);
+Error delete_edge_dialog(Graph * graph);
+Error get_graph_dialog(const Graph *graph);
 //Error traversal_tree_dialog(const KD_tree* tree);
 //Error nearest_item_dialog(const KD_tree * tree);
 //Error timing_dialog();

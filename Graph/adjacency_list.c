@@ -3,6 +3,7 @@
 //
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "mygraph.h"
 #include "MyString.h"
@@ -48,6 +49,7 @@ AdjacencyList * adj_list_init(Vertex ** vertexes, size_t number_of_vertexes) {
 
     list->free = adj_list_free;
     list->add = adj_list_add;
+    list->delete = adj_list_delete;
 
     if (vertexes == NULL) {
         list->number_of_el = 0;
@@ -79,14 +81,51 @@ Error adj_list_add(AdjacencyList * list, Vertex * vertex, int weight) {
     }
 
     AdjacencyListEl * tmp = list->head;
-    list->head = malloc(sizeof(AdjacencyListEl));
-    list->head->next = tmp;
+    list->head = adj_el_init(vertex, tmp, weight);
 
     if (list->tail == NULL)
         list->tail = list->head;
     list->number_of_el++;
-    list->head->vertex = vertex;
-    list->head->weight = weight;
+
+    return IT_IS_OK;
+}
+
+Error adj_list_delete(AdjacencyList * list, char * name) {
+    if (list == NULL) {
+        fprintf(stderr, "null list in deleting from adj list.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    if (name == NULL) {
+        fprintf(stderr, "null name in deleting from adj list.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    if (list->head == NULL) {
+        fprintf(stderr, "deleting from empty list.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    AdjacencyListEl  * el = list->head;
+    AdjacencyListEl * el_pr = list->head;
+
+    while (el && el != list->tail && !strcmp(el->vertex->info, name)) {
+        el_pr = el;
+        el = el->next;
+    }
+    if (el == NULL) {
+        fprintf(stderr, "there is not such element in this list.\n");
+        return RUNTIME_ERROR;
+    }
+    if (el == list->head) {
+        el_pr = el->next;
+        el->free(el);
+        list->head = el_pr;
+        if (el_pr == NULL)
+            list->tail = NULL;
+        return IT_IS_OK;
+    }
+
+    el_pr->next = el->next;
+    el->free(el);
 
     return IT_IS_OK;
 }

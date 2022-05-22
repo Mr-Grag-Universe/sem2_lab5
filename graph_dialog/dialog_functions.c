@@ -43,6 +43,10 @@ Error add_edge_dialog(Graph * graph) {
         printf("there is no such vertex in this graph.\nplease, add it before creating edge.\n");
         return WRONG_INPUT_FROM_STREAM;
     }
+    edge->v1->free(edge->v1);
+    edge->v2->free(edge->v2);
+    edge->v1 = v1;
+    edge->v2 = v2;
     // можно сделать добавление если нет вершины
 
     Error report = graph->add_edge(graph, edge);
@@ -50,96 +54,75 @@ Error add_edge_dialog(Graph * graph) {
     return report;
 }
 
-//Error delete_tree_dialog(KD_tree * tree) {
-//    printf("Enter your key: ");
-//    KD_key * key = KD_key_enter(tree->number_of_dimensions);
-//    if (key == NULL) {
-//        fprintf(stderr, "Entered key is null!\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    KD_node_iterator_container * container = KD_tree_get_node(tree, key);
-//    if (container == NULL) {
-//        KD_key_free(key);
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-//    if (container->number_of_elements == 0) {
-//        printf("there is not elements with such keys.\n");
-//        KD_key_free(key);
-//        KD_node_container_free(container);
-//        return IT_IS_OK;
-//    }
-//    Error report = 0;
-//    if (1) {
-//        printf("There are several dots with the same keys. Please, chose only one of them.\n");
-//        size_t ind = container->number_of_elements;
-//        while (ind >= container->number_of_elements) {
-//            ind = get_int();
-//            if (ind >= container->number_of_elements) {
-//                printf("too big index. do you want to continue? (y/n): ");
-//                char * answer = get_line();
-//                if (answer == NULL) {
-//                    KD_node_container_free(container);
-//                    KD_key_free(key);
-//                    return IT_IS_OK;
-//                }
-//                else if (strcmp("y", answer) != 0) {
-//                    KD_node_container_free(container);
-//                    KD_key_free(key);
-//                    return IT_IS_OK;
-//                }
-//                else {
-//                    continue;
-//                }
-//            }
-//        }
-//        report = KD_tree_delete(tree, key, ind);
-//    }
-//    KD_node_container_free(container);
-//    KD_key_free(key);
-//
-//    return report;
-//}
-//
-//Error get_tree_dialog(const KD_tree * tree) {
-//    printf("Enter your key: ");
-//    KD_key * key = KD_key_enter(tree->number_of_dimensions);
-//    if (key == NULL) {
-//        fprintf(stderr, "Entered key is null!\n");
-//        return NULL_PTR_IN_UNEXCITED_PLACE;
-//    }
-//
-////    KD_node * node = KD_tree_get_node(tree, key);
-////    if (node == NULL) {
-////        fprintf(stderr, "there is no such element in this tree.\n");
-////        return NULL_PTR_IN_UNEXCITED_PLACE;
-////    }
-////    KD_info * info = node->items[KD_BS(node, key->keys[node->current_node_dimension_index])]->info;
-////    KD_key_free(key);
-////
-////    if (!KD_info_print(info) || !KD_key_print(key))
-////        return WRONG_INPUT;
-//
-//    KD_item_iterator_container * container = KD_tree_get_items(tree, key);
-//    if (container == NULL || container->number_of_elements == 0 && container->iterator == NULL) {
-//        printf("there is no such element in this tree.\n");
-//        if (container)
-//            KD_item_container_free(container);
-//        KD_key_free(key);
-//        return IT_IS_OK;
-//    }
-//
-//    size_t number_of_items = container->number_of_elements;
-//    for (size_t i = 0; i < number_of_items; ++i) {
-//        KD_item_print(container->iterator[i]);
-//    }
-//    KD_item_container_free(container);
-//    KD_key_free(key);
-//
-//    return IT_IS_OK;
-//}
-//
+
+Error delete_vertex_dialog(Graph * graph) {
+    if (graph ==NULL) {
+        fprintf(stderr, "null graph in deleting.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    char * name = get_line();
+    while (name == NULL) {
+        printf("please enter not null name.\n");
+        name = get_line();
+    }
+
+    graph->delete_vertex(graph, name);
+    free(name);
+
+    return IT_IS_OK;
+}
+
+Error delete_edge_dialog(Graph * graph) {
+    if (graph ==NULL) {
+        fprintf(stderr, "null graph in deleting.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    Edge * edge = edge_enter(0);
+
+    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+
+    if (v1 == NULL || v2 == NULL) {
+        printf("there is no such vertex in this graph.\nplease, add it before deleting edge.\n");
+        return WRONG_INPUT_FROM_STREAM;
+    }
+
+    graph->delete_edge(graph, edge);
+    edge->v1->free(edge->v1);
+    edge->v2->free(edge->v2);
+    edge->free(edge);
+
+    return IT_IS_OK;
+}
+
+Error get_graph_dialog(const Graph * graph) {
+    if (graph == NULL) {
+        fprintf(stderr, "null graph in getting.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    printf("enter name of the vertex we will be searching for.\n");
+    char * name = get_line();
+    while (name == NULL) {
+        printf("please enter not null name.\n");
+        name = get_line();
+    }
+
+    Vertex * v = graph->get_vertex(graph, name);
+    free(name);
+
+    if (v == NULL) {
+        printf("there is no such vertex.\n");
+        return IT_IS_OK;
+    }
+
+    v->print(v);
+
+    return IT_IS_OK;
+}
+
 //Error traversal_tree_dialog(const KD_tree * tree) {
 //    printf("Do you wanna get all items or items, which keys bigger then entered.\n1) all\t2) some\n");
 //    int chose_all_or_bigger_then_key = 0;

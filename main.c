@@ -59,15 +59,20 @@ bool execute_command(Graph ** graph, Command command) {
             return false;
         }
         case FIND_VERTEX: {
+            get_graph_dialog(*graph);
             return false;
         }
         case DELETE_VERTEX: {
+            delete_vertex_dialog(*graph);
             return false;
         }
         case DELETE_EDGE: {
+            delete_edge_dialog(*graph);
             return false;
         }
         case DELETE_ALl: {
+            (*graph)->free(*graph);
+            *graph = graph_init(NULL, NULL);
             return false;
         }
         case TRAVERSAL: {

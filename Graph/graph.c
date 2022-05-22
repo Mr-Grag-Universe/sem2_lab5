@@ -27,6 +27,11 @@ Graph * graph_init(Vertex ** vertexes, Edge ** edges) {
     graph->get_vertex = graph_get_vertex;
     graph->print = print_graph;
     graph->free = graph_free;
+    graph->get_vertex_index = graph_get_vertex_index;
+    graph->get_edge = graph_get_edge;
+    graph->get_edge_index = graph_get_edge_index;
+    graph->delete_edge = graph_delete_edge;
+    graph->delete_vertex = graph_delete_vertex;
 
     return graph;
 }
@@ -111,6 +116,55 @@ Vertex * graph_get_vertex(Graph * graph, char * info) {
     return NULL;
 }
 
+size_t graph_get_vertex_index(Graph * graph, char * name) {
+    if (graph == NULL) {
+        fprintf(stderr, "tried to get vertex from null graph.\n");
+        return 0;
+    }
+
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+        if (!strcmp(name, graph->vertexes[i]->info)) {
+            return i;
+        }
+    }
+
+    return graph->number_of_vertexes;
+}
+
+size_t graph_get_edge_index(Graph * graph, Edge * edge) {
+    if (graph == NULL) {
+        fprintf(stderr, "tried to get edge index from null graph.\n");
+        return 0;
+    }
+
+    for (size_t i = 0; i < graph->number_of_edges; ++i) {
+        Edge * e = graph->edges[i];
+        if (!strcmp(edge->v1->info, e->v1->info) && !strcmp(edge->v2->info, e->v2->info) && edge->orientation == e->orientation) {
+            return i;
+        }
+        if (!strcmp(edge->v2->info, e->v1->info) && !strcmp(edge->v1->info, e->v2->info) && e->orientation == edge->orientation) {
+            return i;
+        }
+    }
+
+    return graph->number_of_edges;
+}
+
+Edge * graph_get_edge(Graph * graph, Vertex * v1, Vertex * v2) {
+    if (graph == NULL) {
+        fprintf(stderr, "tried to get edge from null graph.\n");
+        return 0;
+    }
+
+    for (size_t i = 0; i < graph->number_of_edges; ++i) {
+        if (v1 == graph->edges[i]->v1 && v2 == graph->edges[i]->v2 || v1 == graph->edges[i]->v2 && v2 == graph->edges[i]->v1) {
+            return graph->edges[i];
+        }
+    }
+
+    return NULL;
+}
+
 Error graph_free(Graph * graph) {
     if (graph == NULL) {
         fprintf(stderr, "null graph in freeing.\n");
@@ -126,6 +180,102 @@ Error graph_free(Graph * graph) {
     free(graph->vertexes);
 
     free(graph);
+
+    return IT_IS_OK;
+}
+
+Error graph_delete_edge(Graph * graph, Edge * edge) {
+    if (graph == NULL) {
+        fprintf(stderr, "иди ...\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    if (edge == NULL) {
+        fprintf(stderr, "иди ...\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+
+    if (v1 == NULL || v2 == NULL) {
+        fprintf(stderr, "there is not such vertexes in this graph.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    if (edge->orientation == V1_to_V2) {
+        v1->out_list->delete(v1->out_list, edge->v2->info);
+        v2->in_list->delete(v2->in_list, edge->v1->info);
+    } else {
+        v2->out_list->delete(v2->out_list, edge->v1->info);
+        v1->in_list->delete(v1->in_list, edge->v2->info);
+    }
+
+    size_t ind = graph->get_edge_index(graph, edge);
+    if (ind >= graph->number_of_edges) {
+        fprintf(stderr, "there is not such edge.\n");
+        return RUNTIME_ERROR;
+    }
+
+    graph->edges[ind]->free(graph->edges[ind]);
+    memmove(graph->edges + ind, graph->edges + ind + 1, sizeof(Edge *) * (graph->number_of_edges-ind));
+    graph->number_of_edges--;
+    graph->edges = realloc(graph->edges, sizeof(Edge *) * (graph->number_of_edges));
+
+    if (graph->number_of_edges == 0) {
+        graph->edges = NULL;
+    }
+
+    return IT_IS_OK;
+}
+
+Error graph_delete_vertex(Graph * graph, char * name) {
+    Vertex *vertex = graph->get_vertex(graph, name);
+    if (vertex == NULL) {
+        fprintf(stderr, "there is no such vertex in this graph.\n");
+        return RUNTIME_ERROR;
+    }
+
+    AdjacencyList *in_list = vertex->in_list;
+    AdjacencyList *out_list = vertex->out_list;
+
+    AdjacencyListEl *el = in_list->head;
+    for (size_t i = 0; i < in_list->number_of_el; ++i) {
+        el->vertex->out_list->delete(el->vertex->out_list, vertex->info);
+    }
+    el = out_list->head;
+    for (size_t i = 0; i < out_list->number_of_el; ++i) {
+        el->vertex->in_list->delete(el->vertex->in_list, vertex->info);
+    }
+
+    size_t ind = graph->get_vertex_index(graph, vertex->info);
+    if (ind == graph->number_of_vertexes) {
+        fprintf(stderr, "can't find current vertex in graph now.\n");
+        exit(RUNTIME_ERROR);
+    }
+
+    Edge ** edges = NULL;
+    size_t number_of_deleting_edges = 0;
+    for (size_t i = 0; i < graph->number_of_edges; ++i) {
+        if (graph->edges[i]->v1 == vertex || graph->edges[i]->v2 == vertex) {
+            edges = realloc(edges, sizeof(Edge*) * (number_of_deleting_edges+1));
+            edges[number_of_deleting_edges] = graph->edges[i];
+            number_of_deleting_edges++;
+        }
+    }
+
+    for (size_t i = 0; i < number_of_deleting_edges; ++i) {
+        graph->delete_edge(graph, edges[i]);
+    }
+    free(edges);
+
+    graph->vertexes[ind]->free(graph->vertexes[ind]);
+
+    memmove(graph->vertexes + ind, graph->vertexes + ind + 1, sizeof(Vertex*) * (graph->number_of_vertexes-ind));
+    graph->number_of_vertexes--;
+    graph->vertexes = realloc(graph->vertexes, sizeof(Vertex*) * (graph->number_of_vertexes));
+    if (graph->number_of_vertexes == 0) {
+        graph->vertexes = NULL;
+    }
 
     return IT_IS_OK;
 }

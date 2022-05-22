@@ -23,6 +23,8 @@ Vertex * vertex_init(char * info) {
 
     vertex->free = vertex_free;
     vertex->add_edge = vertex_add_edge;
+    vertex->delete_edge = vertex_delete_edge;
+    vertex->print = vertex_print;
 
     return vertex;
 }
@@ -84,5 +86,45 @@ Error vertex_add_edge(Vertex * vertex, Edge * edge) {
         return RUNTIME_ERROR;
     }
 
+    return IT_IS_OK;
+}
+
+Error vertex_delete_edge(Vertex * vertex, Edge * edge) {
+    if (vertex == NULL) {
+        fprintf(stderr, "null vertex in deleting edge to it.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    if (edge == NULL) {
+        fprintf(stderr, "null edge in deleting it to vertex.\n");
+    }
+
+    if (!strcmp(vertex->info, edge->v1->info)) {
+        if (edge->orientation == V1_to_V2) {
+            vertex->out_list->delete(vertex->out_list, edge->v2->info);
+        } else {
+            vertex->in_list->delete(vertex->in_list, edge->v2->info);
+        }
+    }
+    else if (!strcmp(vertex->info, edge->v2->info)) {
+        if (edge->orientation == V1_to_V2) {
+            vertex->in_list->delete(vertex->in_list, edge->v1->info);
+        } else {
+            vertex->out_list->delete(vertex->out_list, edge->v1->info);
+        }
+    } else {
+        fprintf(stderr, "there is not current vertex in edge.\n");
+        return RUNTIME_ERROR;
+    }
+
+    return IT_IS_OK;
+}
+
+Error vertex_print(Vertex * v) {
+    if (v == NULL) {
+        printf("null\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    printf("vertex: %s\n", v->info);
     return IT_IS_OK;
 }

@@ -37,10 +37,12 @@ struct AdjacencyList {
 
     Error (*free)(AdjacencyList *);
     Error (*add)(AdjacencyList *, Vertex *, int weight);
+    Error (*delete)(AdjacencyList *, char * name);
 };
 AdjacencyList * adj_list_init(Vertex ** vertexes, size_t number_of_vertexes);
 Error adj_list_free(AdjacencyList * list);
 Error adj_list_add(AdjacencyList *, Vertex *, int weight);
+Error adj_list_delete(AdjacencyList * list, char * name);
 
 //==========================VERTEX=========================
 
@@ -51,11 +53,15 @@ struct Vertex {
 
     Error (* free)(Vertex*);
     Error (* add_edge)(Vertex*, Edge*);
+    Error (* delete_edge)(Vertex*, Edge*);
+    Error (* print)(Vertex *);
 };
 Vertex * vertex_init(char * info);
 Error vertex_free(Vertex * vertex);
 Vertex * vertex_enter();
 Error vertex_add_edge(Vertex * vertex, Edge * edge);
+Error vertex_delete_edge(Vertex * vertex, Edge * edge);
+Error vertex_print(Vertex * v);
 
 //============================ORIENTATION==========================
 
@@ -91,13 +97,23 @@ struct Graph {
     Error (*free)(Graph * graph);
     Error (*add_edge)(Graph *, Edge *);
     Vertex * (*get_vertex)(Graph *, char *);
+    size_t (*get_vertex_index)(Graph *, char *);
+    Edge * (*get_edge)(Graph *, Vertex *, Vertex *);
+    size_t (*get_edge_index)(Graph *, Edge *);
     Error (*print)(Graph *, FILE *);
+    Error (*delete_edge)(Graph *, Edge*);
+    Error (*delete_vertex)(Graph *, char * name);
 };
 Graph * graph_init(Vertex ** vertexes, Edge ** edges);
 Error graph_free(Graph * graph);
 Error graph_add_vertex(Graph * graph, Vertex * vertex);
 Error graph_add_edge(Graph * graph, Edge * edge);
 Vertex * graph_get_vertex(Graph * graph, char * info);
+size_t graph_get_vertex_index(Graph * graph, char *);
+Edge * graph_get_edge(Graph * graph, Vertex *, Vertex *);
+size_t graph_get_edge_index(Graph * graph, Edge *);
 Error print_graph(Graph * graph, FILE * stream);
+Error graph_delete_edge(Graph * graph, Edge * edge);
+Error graph_delete_vertex(Graph * graph, char * name);
 
 #endif //LAB5_MYGRAPH_H
