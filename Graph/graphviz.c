@@ -24,8 +24,8 @@ Error print_graph(Graph * graph, FILE * stream) {
             fprintf(stderr, "null edge in graph.\n");
             return NULL_PTR_IN_UNEXCITED_PLACE;
         }
-        Vertex * v1 = (graph->edges[i]->orientation == V1_to_V2) ? graph->edges[i]->v1 : graph->edges[i]->v2;
-        Vertex * v2 = (graph->edges[i]->orientation == V1_to_V2) ? graph->edges[i]->v2 : graph->edges[i]->v1;
+        Vertex * v1 = (graph->edges[i]->orientation == V1_to_V2) ? &graph->edges[i]->v1 : &graph->edges[i]->v2;
+        Vertex * v2 = (graph->edges[i]->orientation == V1_to_V2) ? &graph->edges[i]->v2 : &graph->edges[i]->v1;
         fprintf(stream, "\t%s -> %s\n", v1->info, v2->info);
     }
 

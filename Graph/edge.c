@@ -10,11 +10,11 @@
 #include "stdio.h"
 #include "stdbool.h"
 
-Edge * edge_init(Vertex * v1, Vertex * v2, Orientation orientation, int weight) {
+Edge * edge_init(Vertex v1, Vertex v2, Orientation orientation, int weight) {
     Edge * edge = malloc(sizeof(Edge));
     edge->orientation = orientation;
-    edge->v1 = v1;
-    edge->v2 = v2;
+    vertex_copy(&(edge->v1), &v1);
+    vertex_copy(&(edge->v2), &v2);
     edge->weight = weight;
 
     edge->free = edge_free;
@@ -48,8 +48,8 @@ Edge * edge_enter(bool enter_weight) {
         v2_label = get_line();
     } while (v2_label == NULL || v2_label[0] == '\0');
 
-    Vertex * v1 = vertex_init(v1_label);
-    Vertex * v2 = vertex_init(v2_label);
+    Vertex v1 = vertex_init(v1_label);
+    Vertex v2 = vertex_init(v2_label);
 
     Edge * edge = edge_init(v1, v2, V1_to_V2, 0);
     if (enter_weight) {

@@ -126,7 +126,7 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
     for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
         all_v[i].next = NULL;
         all_v[i].pr = NULL;
-        all_v[i].v = graph->vertexes + i;
+        all_v[i].v = graph->vertexes+i;
         all_v[i].color = WHITE;
     }
 
@@ -140,6 +140,7 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
 
     Vertex * curr_v = NULL;
     size_t depth = 1;
+    bool found = 0;
     do {
         El * el = Q_pop(q, HEAD);
         curr_v = el->v;
@@ -148,18 +149,33 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
         all_v[ind].color = BLACK;
         depth = all_v[ind].depth+1;
         for (size_t i = 0; i < curr_v->out_list->number_of_el; ++i) {
-            ind = _index(graph->vertexes, list_el->vertex);
+            ind = _index(graph->vertexes, graph->get_vertex(graph, list_el->vertex.info));
             if (all_v[ind].color == WHITE) {
                 all_v[ind].color = GREY;
                 all_v[ind].depth = depth;
                 Q_add(q, all_v + ind, TAIL);
+
+                if (strcmp(all_v[ind].v->info, name) == 0) {
+                    found = 1;
+                    tr = realloc(tr, sizeof(Vertex*) * (number_of_v_in_tr+2));
+                    tr[number_of_v_in_tr] = all_v+_index(graph->vertexes, curr_v);
+                    tr[number_of_v_in_tr+1] = all_v+ind;
+                    number_of_v_in_tr+=2;
+                    break;
+                }
             }
             list_el = list_el->next;
         }
-        tr = realloc(tr, sizeof(Vertex*) * (++number_of_v_in_tr));
-        tr[number_of_v_in_tr-1] = all_v+_index(graph->vertexes, curr_v);
-    } while (q->number_of_elements && strcmp(curr_v->info, name) != 0);
-    if (q->number_of_elements == 0) {
+        if (!found) {
+            tr = realloc(tr, sizeof(Vertex*) * (++number_of_v_in_tr));
+            tr[number_of_v_in_tr-1] = all_v+_index(graph->vertexes, curr_v);
+        }
+    } while (q->number_of_elements);
+
+    if (!found) {
+        free(tr);
+        free(all_v);
+        free(q);
         return NULL;
     }
 
@@ -167,7 +183,7 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
     depth = *depth1;
     Vertex ** path = calloc(depth+1, sizeof(Vertex*));
     path[depth] = tr[number_of_v_in_tr-1]->v;
-    for (size_t i = number_of_v_in_tr-2; i >= 0; ++i) {
+    for (size_t i = number_of_v_in_tr-2; i < number_of_v_in_tr-1; --i) {
         if (path[all_v[i].depth])
             continue;
 
@@ -176,6 +192,10 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
             path[depth] = all_v[i].v;
         }
     }
+
+    free(tr);
+    free(all_v);
+    free(q);
 
     return path;
 }

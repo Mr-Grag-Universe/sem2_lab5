@@ -20,7 +20,7 @@ AdjacencyListEl * adj_el_init(Vertex * vertex, AdjacencyListEl * next, int weigh
         exit(MEMORY_OVERFLOW);
     }
 
-    el->vertex = vertex;
+    vertex_copy(&(el->vertex), vertex);
     el->weight = weight;
     el->next = next;
 
@@ -108,7 +108,7 @@ Error adj_list_delete(AdjacencyList * list, char * name) {
     AdjacencyListEl  * el = list->head;
     AdjacencyListEl * el_pr = list->head;
 
-    while (el && el != list->tail && !strcmp(el->vertex->info, name)) {
+    while (el && el != list->tail && !strcmp(el->vertex.info, name)) {
         el_pr = el;
         el = el->next;
     }
@@ -162,7 +162,7 @@ Error adj_list_print(AdjacencyList * list) {
     }
     AdjacencyListEl * el = list->head;
     while (el) {
-        printf("name: %s, weight: %d; ", el->vertex->info, el->weight);
+        printf("name: %s, weight: %d; ", el->vertex.info, el->weight);
         el = el->next;
     }
     if (list->number_of_el)

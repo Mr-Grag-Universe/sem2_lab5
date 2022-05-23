@@ -10,43 +10,33 @@
 #include "KGetLine.h"
 #include "Errors.h"
 
-Vertex * vertex_init(char * info) {
-    Vertex * vertex = malloc(sizeof(Vertex));
-    if (vertex == NULL) {
-        fprintf(stderr, "memory not enough for new vertex.\n");
-        exit(MEMORY_OVERFLOW);
-    }
+Vertex vertex_init(char * info) {
+    Vertex vertex;
 
-    vertex->in_list = adj_list_init(NULL, 0);
-    vertex->out_list = adj_list_init(NULL, 0);
-    vertex->info = info;
+    vertex.in_list = adj_list_init(NULL, 0);
+    vertex.out_list = adj_list_init(NULL, 0);
+    vertex.info = info;
 
-    vertex->free = vertex_free;
-    vertex->add_edge = vertex_add_edge;
-    vertex->delete_edge = vertex_delete_edge;
-    vertex->print = vertex_print;
+    vertex.free = vertex_free;
+    vertex.add_edge = vertex_add_edge;
+    vertex.delete_edge = vertex_delete_edge;
+    vertex.print = vertex_print;
 
     return vertex;
 }
 
-Error vertex_free(Vertex * vertex) {
-    if (vertex == NULL) {
-        fprintf(stderr, "null vertex in freeing.\n");
-        return FREEING_OF_NULL_PTR;
-    }
+Error vertex_free(Vertex vertex) {
+    if (vertex.in_list)
+        vertex.in_list->free(vertex.in_list);
+    if (vertex.out_list)
+        vertex.out_list->free(vertex.out_list);
 
-    if (vertex->in_list)
-        vertex->in_list->free(vertex->in_list);
-    if (vertex->out_list)
-        vertex->out_list->free(vertex->out_list);
-
-    free(vertex->info);
-    free(vertex);
+    free(vertex.info);
 
     return IT_IS_OK;
 }
 
-Vertex * vertex_enter() {
+Vertex vertex_enter() {
     char * line = NULL;
     do {
         if (line)
@@ -54,7 +44,7 @@ Vertex * vertex_enter() {
         line = get_line();
     } while (line == NULL || line[0] == '\0');
 
-    Vertex * vertex = vertex_init(line);
+    Vertex vertex = vertex_init(line);
 
     return vertex;
 }
@@ -68,18 +58,18 @@ Error vertex_add_edge(Vertex * vertex, Edge * edge) {
         fprintf(stderr, "null edge in adding it to vertex.\n");
     }
 
-    if (!strcmp(vertex->info, edge->v1->info)) {
+    if (!strcmp(vertex->info, edge->v1.info)) {
         if (edge->orientation == V1_to_V2) {
-            vertex->out_list->add(vertex->out_list, edge->v2, edge->weight);
+            vertex->out_list->add(vertex->out_list, &edge->v2, edge->weight);
         } else {
-            vertex->in_list->add(vertex->in_list, edge->v2, edge->weight);
+            vertex->in_list->add(vertex->in_list, &edge->v2, edge->weight);
         }
     }
-    else if (!strcmp(vertex->info, edge->v2->info)) {
+    else if (!strcmp(vertex->info, edge->v2.info)) {
         if (edge->orientation == V1_to_V2) {
-            vertex->in_list->add(vertex->in_list, edge->v1, edge->weight);
+            vertex->in_list->add(vertex->in_list, &(edge->v1), edge->weight);
         } else {
-            vertex->out_list->add(vertex->out_list, edge->v1, edge->weight);
+            vertex->out_list->add(vertex->out_list, &(edge->v1), edge->weight);
         }
     } else {
         fprintf(stderr, "there is not current vertex in edge.\n");
@@ -98,18 +88,18 @@ Error vertex_delete_edge(Vertex * vertex, Edge * edge) {
         fprintf(stderr, "null edge in deleting it to vertex.\n");
     }
 
-    if (!strcmp(vertex->info, edge->v1->info)) {
+    if (!strcmp(vertex->info, edge->v1.info)) {
         if (edge->orientation == V1_to_V2) {
-            vertex->out_list->delete(vertex->out_list, edge->v2->info);
+            vertex->out_list->delete(vertex->out_list, edge->v2.info);
         } else {
-            vertex->in_list->delete(vertex->in_list, edge->v2->info);
+            vertex->in_list->delete(vertex->in_list, edge->v2.info);
         }
     }
-    else if (!strcmp(vertex->info, edge->v2->info)) {
+    else if (!strcmp(vertex->info, edge->v2.info)) {
         if (edge->orientation == V1_to_V2) {
-            vertex->in_list->delete(vertex->in_list, edge->v1->info);
+            vertex->in_list->delete(vertex->in_list, edge->v1.info);
         } else {
-            vertex->out_list->delete(vertex->out_list, edge->v1->info);
+            vertex->out_list->delete(vertex->out_list, edge->v1.info);
         }
     } else {
         fprintf(stderr, "there is not current vertex in edge.\n");
@@ -135,11 +125,17 @@ bool is_incidental(Vertex * v1, char * name) {
 
     AdjacencyListEl * el = v1->out_list->head;
     for (size_t i = 0; i < v1->out_list->number_of_el; ++i) {
-        if (!strcmp(el->vertex->info, name)) {
+        if (!strcmp(el->vertex.info, name)) {
             return 1;
         }
         el = el->next;
     }
 
     return 0;
+}
+
+void vertex_copy(Vertex * v, Vertex * src) {
+    if (v == NULL || src == NULL)
+        return;
+    memmove(v, src, sizeof(Vertex));
 }

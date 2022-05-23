@@ -15,20 +15,16 @@
 
 Error add_vertex_dialog(Graph * graph) {
     printf("Enter your label: ");
-    Vertex * v = vertex_enter();
-    if (v == NULL) {
-        fprintf(stderr, "Entered vertex is null!\n");
-        return WRONG_INPUT_FROM_STREAM;
-    }
+    Vertex v = vertex_enter();
 
-    Vertex * v1 = graph->get_vertex(graph, v->info);
+    Vertex * v1 = graph->get_vertex(graph, v.info);
     if (v1) {
         printf("there is a vertex with such name.\n");
-        v->free(v);
+        v.free(v);
         return IT_IS_OK;
     }
 
-    Error report = graph->add_vertex(graph, v);
+    Error report = graph->add_vertex(graph, &v);
 
     return report;
 }
@@ -36,17 +32,17 @@ Error add_vertex_dialog(Graph * graph) {
 Error add_edge_dialog(Graph * graph) {
     Edge * edge = edge_enter(0);
 
-    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
-    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+    Vertex * v1 = graph->get_vertex(graph, edge->v1.info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2.info);
 
     if (v1 == NULL || v2 == NULL) {
         printf("there is no such vertex in this graph.\nplease, add it before creating edge.\n");
         return WRONG_INPUT_FROM_STREAM;
     }
-    edge->v1->free(edge->v1);
-    edge->v2->free(edge->v2);
-    edge->v1 = v1;
-    edge->v2 = v2;
+    edge->v1.free(edge->v1);
+    edge->v2.free(edge->v2);
+    vertex_copy(&edge->v1, v1);
+    vertex_copy(&edge->v2, v2);
     // можно сделать добавление если нет вершины
 
     Error report = graph->add_edge(graph, edge);
@@ -81,8 +77,8 @@ Error delete_edge_dialog(Graph * graph) {
 
     Edge * edge = edge_enter(0);
 
-    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
-    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+    Vertex * v1 = graph->get_vertex(graph, edge->v1.info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2.info);
 
     if (v1 == NULL || v2 == NULL) {
         printf("there is no such vertex in this graph.\nplease, add it before deleting edge.\n");
@@ -90,8 +86,8 @@ Error delete_edge_dialog(Graph * graph) {
     }
 
     graph->delete_edge(graph, edge);
-    edge->v1->free(edge->v1);
-    edge->v2->free(edge->v2);
+    edge->v1.free(edge->v1);
+    edge->v2.free(edge->v2);
     edge->free(edge);
 
     return IT_IS_OK;
@@ -147,30 +143,44 @@ Error graph_BFS_dialog(Graph * graph) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    char * name1 = get_line();
-    while (name1 == NULL) {
-        printf("please enter not null name.\n");
-        name1 = get_line();
-    }
-    char * name = get_line();
-    while (name == NULL) {
-        printf("please enter not null name.\n");
-        name = get_line();
+    printf("enter the first vertex' start_name: ");
+    char * start_name = get_line();
+    while (start_name == NULL) {
+        printf("please enter not null start_name.\n");
+        start_name = get_line();
     }
 
-    Vertex * v = graph->get_vertex(graph, name1);
+    printf("enter the second vertex' end_name: ");
+    char * end_name = get_line();
+    while (end_name == NULL) {
+        printf("please enter not null end_name.\n");
+        end_name = get_line();
+    }
 
-    Vertex ** path = graph->BFS(graph, v, name);
+    Vertex * start_v = graph->get_vertex(graph, start_name);
+    Vertex * end_v = graph->get_vertex(graph, end_name);
+    if (end_v == NULL || start_v == NULL) {
+        fprintf(stderr, "there is not vertex.\n");
+        free(end_name);
+        free(start_name);
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    Vertex ** path = graph->BFS(graph, start_v, end_name);
+    free(end_name);
+    free(start_name);
     if (path == NULL) {
         printf("there is not path from to vertex.\n");
         return IT_IS_OK;
     }
     size_t i = 0;
-    v = path[i];
-    while (v) {
-        v->print(v);
-        v = path[++i];
+    start_v = path[i];
+    while (start_v) {
+        start_v->print(start_v);
+        start_v = path[++i];
     }
+
+    free(path);
 
     return IT_IS_OK;
 }

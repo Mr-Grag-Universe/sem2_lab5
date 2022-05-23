@@ -49,7 +49,7 @@ Error graph_add_vertex(Graph * graph, Vertex * vertex) {
     }
 
     graph->vertexes = realloc(graph->vertexes, sizeof(Vertex) * (graph->number_of_vertexes + 1));
-    memmove(graph->vertexes + graph->number_of_vertexes, vertex, sizeof(Vertex));
+    vertex_copy(graph->vertexes + graph->number_of_vertexes, vertex);
 
     graph->number_of_vertexes++;
 
@@ -66,17 +66,18 @@ Error graph_add_edge(Graph * graph, Edge * edge) {
         fprintf(stderr, "edge is NULL in adding.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
-    if (edge->v1 == NULL || edge->v2 == NULL) {
-        fprintf(stderr, "edge v1 or v2 is null in adding.\n");
-        return NULL_PTR_IN_UNEXCITED_PLACE;
-    }
 
-    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
-    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+    Vertex * v1 = graph->get_vertex(graph, edge->v1.info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2.info);
+    Edge * e = graph->get_edge(graph, edge);
 
     if (v1 == NULL || v2 == NULL) {
         fprintf(stderr, "there is not vertex such as in edge.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    if (e) {
+        edge->free(edge);
+        return IT_IS_OK;
     }
 //
 //    // проверяем что действительно добавили
@@ -151,10 +152,10 @@ size_t graph_get_edge_index(Graph * graph, Edge * edge) {
 
     for (size_t i = 0; i < graph->number_of_edges; ++i) {
         Edge * e = graph->edges[i];
-        if (!strcmp(edge->v1->info, e->v1->info) && !strcmp(edge->v2->info, e->v2->info) && edge->orientation == e->orientation) {
+        if (!strcmp(edge->v1.info, e->v1.info) && !strcmp(edge->v2.info, e->v2.info) && edge->orientation == e->orientation) {
             return i;
         }
-        if (!strcmp(edge->v2->info, e->v1->info) && !strcmp(edge->v1->info, e->v2->info) && e->orientation == edge->orientation) {
+        if (!strcmp(edge->v2.info, e->v1.info) && !strcmp(edge->v1.info, e->v2.info) && e->orientation != edge->orientation) {
             return i;
         }
     }
@@ -162,14 +163,17 @@ size_t graph_get_edge_index(Graph * graph, Edge * edge) {
     return graph->number_of_edges;
 }
 
-Edge * graph_get_edge(Graph * graph, Vertex * v1, Vertex * v2) {
+Edge * graph_get_edge(Graph * graph, Edge * edge) {
     if (graph == NULL) {
         fprintf(stderr, "tried to get edge from null graph.\n");
         return 0;
     }
 
     for (size_t i = 0; i < graph->number_of_edges; ++i) {
-        if (v1 == graph->edges[i]->v1 && v2 == graph->edges[i]->v2 || v1 == graph->edges[i]->v2 && v2 == graph->edges[i]->v1) {
+        Edge * e = graph->edges[i];
+        bool if1 = !strcmp(edge->v1.info, e->v1.info) && !strcmp(edge->v2.info, e->v2.info) && edge->orientation == e->orientation;
+        bool if2 = !strcmp(edge->v1.info, e->v2.info) && !strcmp(edge->v2.info, e->v1.info) && edge->orientation != e->orientation;
+        if (if1 || if2) {
             return graph->edges[i];
         }
     }
@@ -183,8 +187,8 @@ Error graph_free(Graph * graph) {
         return FREEING_OF_NULL_PTR;
     }
 
-    //for (size_t i = 0; i < graph->number_of_vertexes; ++i)
-        //graph->vertexes[i].free(graph->vertexes[i]);
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i)
+        graph->vertexes[i].free(graph->vertexes[i]);
     for (size_t i = 0; i < graph->number_of_edges; ++i)
         graph->edges[i]->free(graph->edges[i]);
 
@@ -206,25 +210,30 @@ Error graph_delete_edge(Graph * graph, Edge * edge) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    Vertex * v1 = graph->get_vertex(graph, edge->v1->info);
-    Vertex * v2 = graph->get_vertex(graph, edge->v2->info);
+    Vertex * v1 = graph->get_vertex(graph, edge->v1.info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2.info);
+    Edge * e = graph->get_edge(graph, edge);
 
     if (v1 == NULL || v2 == NULL) {
         fprintf(stderr, "there is not such vertexes in this graph.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
+    if (e == NULL) {
+        return IT_IS_OK;
+    }
 
     if (edge->orientation == V1_to_V2) {
-        v1->out_list->delete(v1->out_list, edge->v2->info);
-        v2->in_list->delete(v2->in_list, edge->v1->info);
+        v1->out_list->delete(v1->out_list, edge->v2.info);
+        v2->in_list->delete(v2->in_list, edge->v1.info);
     } else {
-        v2->out_list->delete(v2->out_list, edge->v1->info);
-        v1->in_list->delete(v1->in_list, edge->v2->info);
+        v2->out_list->delete(v2->out_list, edge->v1.info);
+        v1->in_list->delete(v1->in_list, edge->v2.info);
     }
 
     size_t ind = graph->get_edge_index(graph, edge);
     if (ind >= graph->number_of_edges) {
         fprintf(stderr, "there is not such edge.\n");
+        edge->free(edge);
         return RUNTIME_ERROR;
     }
 
@@ -269,7 +278,7 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     Edge ** edges = NULL;
     size_t number_of_deleting_edges = 0;
     for (size_t i = 0; i < graph->number_of_edges; ++i) {
-        if (graph->edges[i]->v1 == vertex || graph->edges[i]->v2 == vertex) {
+        if (!strcmp(graph->edges[i]->v1.info, vertex->info) || !strcmp(graph->edges[i]->v2.info, vertex->info)) {
             edges = realloc(edges, sizeof(Edge*) * (number_of_deleting_edges+1));
             edges[number_of_deleting_edges] = graph->edges[i];
             number_of_deleting_edges++;
@@ -281,8 +290,7 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     }
     free(edges);
 
-    //graph->vertexes[ind]->free(graph->vertexes[ind]);
-
+    graph->vertexes[ind].free(graph->vertexes[ind]);
     memmove(graph->vertexes + ind, graph->vertexes + ind + 1, sizeof(Vertex) * (graph->number_of_vertexes-ind-1));
     graph->number_of_vertexes--;
     graph->vertexes = realloc(graph->vertexes, sizeof(Vertex) * (graph->number_of_vertexes));
@@ -309,6 +317,8 @@ Vertex ** graph_BFS(Graph * graph, Vertex * start_vertex, char * name) {
 
     size_t depth = 0;
     Vertex ** path = BFS(graph, start_vertex, name, &depth);
+    if (path == NULL)
+        return NULL;
     path = realloc(path, sizeof(Vertex*) * (depth+2));
     path[depth+1] = NULL;
 
