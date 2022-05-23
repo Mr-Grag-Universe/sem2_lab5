@@ -20,4 +20,7 @@ typedef enum Type {
 long long arithmetic_mean(void * array, size_t number_of_el);
 /// in struct: ptr to coords and number of coords - size_t
 double distance(void * c1, void * c2, size_t d, Type type);
+
+int min(int x, int y);
+int max(int x, int y);
 #endif //LAB4B_PROT_MYMATH_H

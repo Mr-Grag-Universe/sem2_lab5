@@ -51,7 +51,7 @@ Edge * edge_enter(bool enter_weight) {
     Vertex v1 = vertex_init(v1_label);
     Vertex v2 = vertex_init(v2_label);
 
-    Edge * edge = edge_init(v1, v2, V1_to_V2, 0);
+    Edge * edge = edge_init(v1, v2, V1_to_V2, 1);
     if (enter_weight) {
         int weight = get_int();
         edge->weight = weight;

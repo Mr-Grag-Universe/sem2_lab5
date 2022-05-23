@@ -54,3 +54,11 @@ double distance(void * c1, void * c2, size_t d, Type type) {
             return -1;
     }
 }
+
+int min(int x, int y) {
+    return (x>y) ? y: x;
+}
+
+int max(int x, int y) {
+    return (x<y) ? y: x;
+}

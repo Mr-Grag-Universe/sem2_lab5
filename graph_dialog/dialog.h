@@ -13,6 +13,7 @@ Error delete_edge_dialog(Graph * graph);
 Error get_graph_dialog(const Graph *graph);
 Error graph_print_as_lists(const Graph * graph);
 Error graph_BFS_dialog(Graph * graph);
+Error graph_BFA_dialog(Graph * graph);
 //Error traversal_tree_dialog(const KD_tree* tree);
 //Error nearest_item_dialog(const KD_tree * tree);
 //Error timing_dialog();

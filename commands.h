@@ -14,6 +14,7 @@ typedef enum Commands {
     DELETE_ALl,
     PRINT,
     BFSc,
+    BFAc,
     TRAVERSAL,
     TIMING,
     RANDOM_GENERATE,
