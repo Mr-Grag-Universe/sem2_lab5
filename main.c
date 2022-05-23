@@ -23,6 +23,7 @@ char ** init_menu_points() {
     menu_points[DELETE_VERTEX] = "delete an vertex";
     menu_points[DELETE_EDGE] = "delete an edge";
     menu_points[PRINT] = "print graph as lists of incidences";
+    menu_points[BFSc] = "BFS";
     menu_points[FIND_VERTEX] = "find an vertex";
     menu_points[DELETE_ALl] = "delete all";
     menu_points[TRAVERSAL] = "graph traversal";
@@ -73,6 +74,10 @@ bool execute_command(Graph ** graph, Command command) {
         }
         case PRINT: {
             graph_print_as_lists(*graph);
+            return false;
+        }
+        case BFSc: {
+            graph_BFS_dialog(*graph);
             return false;
         }
         case DELETE_ALl: {
@@ -126,6 +131,8 @@ Command get_command_code(char * command) {
         return PRINT;
     else if (!strcmp(command, "delete all"))
         return DELETE_ALl;
+    else if (!strcmp(command, "BFS"))
+        return BFSc;
     else if (!strcmp(command, "traversal"))
         return TRAVERSAL;
     else if (!strcmp(command, "time"))

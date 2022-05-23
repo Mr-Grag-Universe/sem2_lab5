@@ -130,12 +130,46 @@ Error graph_print_as_lists(const Graph * graph) {
     }
 
     for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
-        graph->vertexes[i]->print(graph->vertexes[i]);
+        graph->vertexes[i].print(graph->vertexes+i);
         printf("out list:\n");
-        graph->vertexes[i]->out_list->print(graph->vertexes[i]->out_list);
+        graph->vertexes[i].out_list->print(graph->vertexes[i].out_list);
         printf("in list:\n");
-        graph->vertexes[i]->in_list->print(graph->vertexes[i]->in_list);
+        graph->vertexes[i].in_list->print(graph->vertexes[i].in_list);
         printf("\n");
+    }
+
+    return IT_IS_OK;
+}
+
+Error graph_BFS_dialog(Graph * graph) {
+    if (graph == NULL) {
+        fprintf(stderr, "this graph is null.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    char * name1 = get_line();
+    while (name1 == NULL) {
+        printf("please enter not null name.\n");
+        name1 = get_line();
+    }
+    char * name = get_line();
+    while (name == NULL) {
+        printf("please enter not null name.\n");
+        name = get_line();
+    }
+
+    Vertex * v = graph->get_vertex(graph, name1);
+
+    Vertex ** path = graph->BFS(graph, v, name);
+    if (path == NULL) {
+        printf("there is not path from to vertex.\n");
+        return IT_IS_OK;
+    }
+    size_t i = 0;
+    v = path[i];
+    while (v) {
+        v->print(v);
+        v = path[++i];
     }
 
     return IT_IS_OK;

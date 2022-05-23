@@ -64,6 +64,7 @@ Vertex * vertex_enter();
 Error vertex_add_edge(Vertex * vertex, Edge * edge);
 Error vertex_delete_edge(Vertex * vertex, Edge * edge);
 Error vertex_print(Vertex * v);
+bool is_incidental(Vertex * v1, char * name);
 
 //============================ORIENTATION==========================
 
@@ -89,7 +90,7 @@ Edge * edge_enter(bool enter_weight);
 //============================GRAPH===========================
 
 struct Graph {
-    Vertex ** vertexes;
+    Vertex * vertexes;
     size_t number_of_vertexes;
 
     Edge ** edges;
@@ -105,6 +106,7 @@ struct Graph {
     Error (*print)(Graph *, FILE *);
     Error (*delete_edge)(Graph *, Edge*);
     Error (*delete_vertex)(Graph *, char * name);
+    Vertex ** (*BFS)(Graph *, Vertex *, char *);
 };
 Graph * graph_init(Vertex ** vertexes, Edge ** edges);
 Error graph_free(Graph * graph);
@@ -117,5 +119,8 @@ size_t graph_get_edge_index(Graph * graph, Edge *);
 Error print_graph(Graph * graph, FILE * stream);
 Error graph_delete_edge(Graph * graph, Edge * edge);
 Error graph_delete_vertex(Graph * graph, char * name);
+size_t _index(Vertex * vs, Vertex * v);
+Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth);
+Vertex ** graph_BFS(Graph * graph, Vertex * start_vertex, char * name);
 
 #endif //LAB5_MYGRAPH_H

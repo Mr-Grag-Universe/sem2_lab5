@@ -16,11 +16,7 @@ Error print_graph(Graph * graph, FILE * stream) {
     fprintf(stream, "    node [fontname=\"Arial\"];\n");
 
     for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
-        if (graph->vertexes[i] == NULL) {
-            fprintf(stderr, "null vertex in graph.\n");
-            return NULL_PTR_IN_UNEXCITED_PLACE;
-        }
-        fprintf(stream, "\t%s;\n", graph->vertexes[i]->info);
+        fprintf(stream, "\t%s;\n", graph->vertexes[i].info);
     }
     fprintf(stream, "\n");
     for (size_t i = 0; i < graph->number_of_edges; ++i) {

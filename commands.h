@@ -13,6 +13,7 @@ typedef enum Commands {
     DELETE_EDGE,
     DELETE_ALl,
     PRINT,
+    BFSc,
     TRAVERSAL,
     TIMING,
     RANDOM_GENERATE,

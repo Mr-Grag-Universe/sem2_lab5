@@ -32,6 +32,7 @@ Graph * graph_init(Vertex ** vertexes, Edge ** edges) {
     graph->get_edge_index = graph_get_edge_index;
     graph->delete_edge = graph_delete_edge;
     graph->delete_vertex = graph_delete_vertex;
+    graph->BFS = graph_BFS;
 
     return graph;
 }
@@ -48,7 +49,7 @@ Error graph_add_vertex(Graph * graph, Vertex * vertex) {
     }
 
     graph->vertexes = realloc(graph->vertexes, sizeof(Vertex) * (graph->number_of_vertexes + 1));
-    graph->vertexes[graph->number_of_vertexes] = vertex;
+    memmove(graph->vertexes + graph->number_of_vertexes, vertex, sizeof(Vertex));
 
     graph->number_of_vertexes++;
 
@@ -110,8 +111,8 @@ Vertex * graph_get_vertex(Graph * graph, char * info) {
     }
 
     for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
-        if (!strcmp(info, graph->vertexes[i]->info)) {
-            return graph->vertexes[i];
+        if (!strcmp(info, graph->vertexes[i].info)) {
+            return graph->vertexes + i;
         }
     }
 
@@ -125,12 +126,21 @@ size_t graph_get_vertex_index(Graph * graph, char * name) {
     }
 
     for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
-        if (!strcmp(name, graph->vertexes[i]->info)) {
+        if (!strcmp(name, graph->vertexes[i].info)) {
             return i;
         }
     }
 
     return graph->number_of_vertexes;
+}
+
+size_t _index(Vertex * vs, Vertex * v) {
+    if (v == NULL || vs == NULL) {
+        fprintf(stderr, "null is here.\n");
+        return -1;
+    }
+
+    return ((size_t) v - (size_t) vs) / sizeof(Vertex);
 }
 
 size_t graph_get_edge_index(Graph * graph, Edge * edge) {
@@ -173,8 +183,8 @@ Error graph_free(Graph * graph) {
         return FREEING_OF_NULL_PTR;
     }
 
-    for (size_t i = 0; i < graph->number_of_vertexes; ++i)
-        graph->vertexes[i]->free(graph->vertexes[i]);
+    //for (size_t i = 0; i < graph->number_of_vertexes; ++i)
+        //graph->vertexes[i].free(graph->vertexes[i]);
     for (size_t i = 0; i < graph->number_of_edges; ++i)
         graph->edges[i]->free(graph->edges[i]);
 
@@ -241,13 +251,13 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     AdjacencyList *out_list = vertex->out_list;
 
     // что это ???!!!
-//    AdjacencyListEl *el = in_list->head;
+//    AdjacencyListEl *El = in_list->head;
 //    for (size_t i = 0; i < in_list->number_of_el; ++i) {
-//        el->vertex->out_list->delete(el->vertex->out_list, vertex->info);
+//        El->vertex->out_list->delete(El->vertex->out_list, vertex->info);
 //    }
-//    el = out_list->head;
+//    El = out_list->head;
 //    for (size_t i = 0; i < out_list->number_of_el; ++i) {
-//        el->vertex->in_list->delete(el->vertex->in_list, vertex->info);
+//        El->vertex->in_list->delete(El->vertex->in_list, vertex->info);
 //    }
 
     size_t ind = graph->get_vertex_index(graph, vertex->info);
@@ -271,11 +281,11 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     }
     free(edges);
 
-    graph->vertexes[ind]->free(graph->vertexes[ind]);
+    //graph->vertexes[ind]->free(graph->vertexes[ind]);
 
-    memmove(graph->vertexes + ind, graph->vertexes + ind + 1, sizeof(Vertex*) * (graph->number_of_vertexes-ind-1));
+    memmove(graph->vertexes + ind, graph->vertexes + ind + 1, sizeof(Vertex) * (graph->number_of_vertexes-ind-1));
     graph->number_of_vertexes--;
-    graph->vertexes = realloc(graph->vertexes, sizeof(Vertex*) * (graph->number_of_vertexes));
+    graph->vertexes = realloc(graph->vertexes, sizeof(Vertex) * (graph->number_of_vertexes));
     if (graph->number_of_vertexes == 0) {
         graph->vertexes = NULL;
     }
@@ -283,7 +293,7 @@ Error graph_delete_vertex(Graph * graph, char * name) {
     return IT_IS_OK;
 }
 
-Vertex * BFS(Graph * graph, Vertex * start_vertex, char * name) {
+Vertex ** graph_BFS(Graph * graph, Vertex * start_vertex, char * name) {
     if (graph == NULL) {
         fprintf(stderr, "null graph in BFS.\n");
         return NULL;
@@ -292,9 +302,15 @@ Vertex * BFS(Graph * graph, Vertex * start_vertex, char * name) {
         return NULL;
     }
     if (start_vertex == NULL) {
-        start_vertex = graph->vertexes[0];
+        start_vertex = graph->vertexes;
         fprintf(stderr, "start vertex is null, so we started from 0 index vertex.\n");
     }
 
 
+    size_t depth = 0;
+    Vertex ** path = BFS(graph, start_vertex, name, &depth);
+    path = realloc(path, sizeof(Vertex*) * (depth+2));
+    path[depth+1] = NULL;
+
+    return path;
 }

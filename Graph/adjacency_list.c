@@ -12,7 +12,7 @@
 
 AdjacencyListEl * adj_el_init(Vertex * vertex, AdjacencyListEl * next, int weight) {
     if (vertex == NULL) {
-        fprintf(stderr, "NULL vertex in adj el init.\n");
+        fprintf(stderr, "NULL vertex in adj El init.\n");
     }
     AdjacencyListEl * el = malloc(sizeof(AdjacencyListEl));
     if (el == NULL) {
@@ -31,7 +31,7 @@ AdjacencyListEl * adj_el_init(Vertex * vertex, AdjacencyListEl * next, int weigh
 
 Error adj_el_free(AdjacencyListEl * el) {
     if (el == NULL) {
-        fprintf(stderr, "null el in freeing.\n");
+        fprintf(stderr, "null El in freeing.\n");
         return FREEING_OF_NULL_PTR;
     }
 

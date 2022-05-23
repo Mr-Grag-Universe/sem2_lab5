@@ -128,3 +128,18 @@ Error vertex_print(Vertex * v) {
     printf("vertex: %s\n", v->info);
     return IT_IS_OK;
 }
+
+bool is_incidental(Vertex * v1, char * name) {
+    if (v1 == NULL || name == NULL)
+        return 0;
+
+    AdjacencyListEl * el = v1->out_list->head;
+    for (size_t i = 0; i < v1->out_list->number_of_el; ++i) {
+        if (!strcmp(el->vertex->info, name)) {
+            return 1;
+        }
+        el = el->next;
+    }
+
+    return 0;
+}
