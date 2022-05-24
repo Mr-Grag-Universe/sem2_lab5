@@ -2,8 +2,8 @@
 // Created by Stephan on 23.05.2022.
 //
 
-#ifndef LAB5_BFS_H
-#define LAB5_BFS_H
+#ifndef LAB5_BFS_DFS_H
+#define LAB5_BFS_DFS_H
 #include "mygraph.h"
 
 typedef enum Q_mode {
@@ -27,8 +27,8 @@ typedef struct El {
 
 typedef struct Queue {
     size_t number_of_elements;
-    El * hear;
+    El * head;
     El * tail;
 } Queue;
 
-#endif //LAB5_BFS_H
+#endif //LAB5_BFS_DFS_H

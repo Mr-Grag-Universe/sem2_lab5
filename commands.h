@@ -15,6 +15,7 @@ typedef enum Commands {
     PRINT,
     BFSc,
     BFAc,
+    DFSc,
     TRAVERSAL,
     TIMING,
     RANDOM_GENERATE,

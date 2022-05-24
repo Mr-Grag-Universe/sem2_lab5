@@ -212,6 +212,24 @@ Error graph_BFA_dialog(Graph * graph) {
     return IT_IS_OK;
 }
 
+Error graph_DFS_dialog(Graph * graph) {
+    if (graph == NULL) {
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    Vertex ** order = DFS(graph);
+    if (order == NULL) {
+        printf("there is negative circle in this graph.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+        printf("%s\n", order[i]->info);
+    }
+    free(order);
+
+    return IT_IS_OK;
+}
+
 //Error traversal_tree_dialog(const KD_tree * tree) {
 //    printf("Do you wanna get all items or items, which keys bigger then entered.\n1) all\t2) some\n");
 //    int chose_all_or_bigger_then_key = 0;

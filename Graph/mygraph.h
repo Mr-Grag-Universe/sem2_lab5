@@ -124,5 +124,6 @@ size_t _index(Vertex * vs, Vertex * v);
 Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth);
 Vertex ** graph_BFS(Graph * graph, Vertex * start_vertex, char * name);
 int * BFA(Graph * graph, Vertex * start_vertex);
+Vertex ** DFS(Graph * graph);
 
 #endif //LAB5_MYGRAPH_H

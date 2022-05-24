@@ -24,6 +24,7 @@ char ** init_menu_points() {
     menu_points[DELETE_EDGE] = "delete an edge";
     menu_points[PRINT] = "print graph as lists of incidences";
     menu_points[BFSc] = "BFS";
+    menu_points[DFSc] = "DFS";
     menu_points[BFAc] = "Bellman-Ford algorithm";
     menu_points[FIND_VERTEX] = "find an vertex";
     menu_points[DELETE_ALl] = "delete all";
@@ -79,6 +80,10 @@ bool execute_command(Graph ** graph, Command command) {
         }
         case BFSc: {
             graph_BFS_dialog(*graph);
+            return false;
+        }
+        case DFSc: {
+            graph_DFS_dialog(*graph);
             return false;
         }
         case BFAc: {
@@ -138,6 +143,8 @@ Command get_command_code(char * command) {
         return DELETE_ALl;
     else if (!strcmp(command, "BFS"))
         return BFSc;
+    else if (!strcmp(command, "DFS"))
+        return DFSc;
     else if (!strcmp(command, "BFA"))
         return BFAc;
     else if (!strcmp(command, "traversal"))
