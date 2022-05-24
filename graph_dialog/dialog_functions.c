@@ -217,7 +217,7 @@ Error graph_DFS_dialog(Graph * graph) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    Vertex ** order = DFS(graph);
+    Vertex ** order = DFS(graph, NULL);
     if (order == NULL) {
         printf("there is negative circle in this graph.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;
@@ -230,61 +230,24 @@ Error graph_DFS_dialog(Graph * graph) {
     return IT_IS_OK;
 }
 
-//Error traversal_tree_dialog(const KD_tree * tree) {
-//    printf("Do you wanna get all items or items, which keys bigger then entered.\n1) all\t2) some\n");
-//    int chose_all_or_bigger_then_key = 0;
-//    while (chose_all_or_bigger_then_key <= 0 || chose_all_or_bigger_then_key > 2) {
-//        chose_all_or_bigger_then_key = get_int();
-//        if (chose_all_or_bigger_then_key <= 0 || chose_all_or_bigger_then_key > 2) {
-//            printf("your answer is wrong. do you want to continue? (y/n): ");
-//            char * answer = get_line();
-//            if (answer == NULL || strcmp("y", answer) != 0) {
-//                if (answer)
-//                    free(answer);
-//                return IT_IS_OK;
-//            }
-//            free(answer);
-//        }
-//    }
-//
-//    switch (chose_all_or_bigger_then_key) {
-//        case 1: {
-//            KD_item_iterator_container * container = KD_item_iterator_create(tree->root);
-//            for (size_t i = 0; i < container->number_of_elements; ++i) {
-//                KD_item_print(container->iterator[i]);
-//            }
-//            KD_item_container_free(container);
-//            break;
-//        }
-//        case 2: {
-//            KD_key * key = KD_key_enter(tree->number_of_dimensions);
-//
-//            KD_item_iterator_container * container = KD_tree_create_SIIC(tree, key);
-//            if (container == NULL || container->number_of_elements == 0) {
-//                printf("there is not dots with such key.\n");
-//                if (container)
-//                    KD_item_container_free(container);
-//                return IT_IS_OK;
-//            }
-//            for (size_t i = 0; i < container->number_of_elements; ++i) {
-//                KD_item_print(container->iterator[i]);
-//            }
-//
-//            KD_item_container_free(container);
-//            KD_key_free(key);
-//
-//            break;
-//        }
-//        default: {
-//            fprintf(stderr, "input Error in traversal.\n");
-//            return WRONG_INPUT;
-//        }
-//    }
-//
-//
-//    return IT_IS_OK;
-//}
-//
+Error graph_top_sort_dialog(Graph * graph) {
+    if (graph == NULL) {
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+
+    Vertex ** order = top_sort(graph, NULL);
+    if (order == NULL) {
+        printf("there is negative circle in this graph.\n");
+        return NULL_PTR_IN_UNEXCITED_PLACE;
+    }
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+        printf("%s\n", order[i]->info);
+    }
+    free(order);
+
+    return IT_IS_OK;
+}
+
 //Error timing_dialog() {
 //    srand(time(NULL));
 //

@@ -16,7 +16,7 @@ typedef enum Commands {
     BFSc,
     BFAc,
     DFSc,
-    TRAVERSAL,
+    TOP_SORT,
     TIMING,
     RANDOM_GENERATE,
     READ_GRAPH,

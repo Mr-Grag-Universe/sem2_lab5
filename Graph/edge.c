@@ -10,7 +10,7 @@
 #include "stdio.h"
 #include "stdbool.h"
 
-Edge * edge_init(Vertex v1, Vertex v2, Orientation orientation, int weight) {
+Edge * edge_init(Vertex v1, Vertex v2, Orientation orientation, double weight) {
     Edge * edge = malloc(sizeof(Edge));
     edge->orientation = orientation;
     vertex_copy(&(edge->v1), &v1);

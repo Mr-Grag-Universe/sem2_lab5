@@ -79,12 +79,12 @@ typedef enum Orientation {
 struct Edge {
     Vertex v1;
     Vertex v2;
-    int weight;
+    double weight;
     Orientation orientation;
 
     Error (*free)(Edge *);
 };
-Edge * edge_init(Vertex v1, Vertex v2, Orientation orientation, int weight);
+Edge * edge_init(Vertex v1, Vertex v2, Orientation orientation, double weight);
 Error edge_free(Edge * edge);
 Edge * edge_enter(bool enter_weight);
 
@@ -124,6 +124,7 @@ size_t _index(Vertex * vs, Vertex * v);
 Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth);
 Vertex ** graph_BFS(Graph * graph, Vertex * start_vertex, char * name);
 int * BFA(Graph * graph, Vertex * start_vertex);
-Vertex ** DFS(Graph * graph);
+Vertex ** DFS(Graph * graph, Vertex * start_v);
+Vertex ** top_sort(Graph * graph, Vertex * start_v);
 
 #endif //LAB5_MYGRAPH_H

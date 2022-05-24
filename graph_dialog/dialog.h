@@ -15,10 +15,10 @@ Error graph_print_as_lists(const Graph * graph);
 Error graph_BFS_dialog(Graph * graph);
 Error graph_BFA_dialog(Graph * graph);
 Error graph_DFS_dialog(Graph * graph);
-//Error nearest_item_dialog(const KD_tree * tree);
+Error graph_top_sort_dialog(Graph * graph);
 //Error timing_dialog();
 //Error random_dialog(KD_tree ** tree);
 //Error read_tree_dialog(KD_tree ** tree);
-//KD_tree * number_of_words_in_file();
 Error dialog_update_graphviz(Graph * graph);
+Graph * read_graph();
 #endif //LAB4_PROT_DIALOG_H

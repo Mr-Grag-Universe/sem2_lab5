@@ -22,13 +22,13 @@ char * f_get_line(FILE * file, long offset) {
     char n = 0;
     int old_len = 0;
     char buf[101] = {0};
-	printf("%p\n", file);
+	// printf("%p\n", file);
 
     do {
         n = fscanf(file, "%100[^\n]", buf);
         int chunck_len = strlen(buf);
         //int old_len = strlen(res);
-	    printf("buf: %s\n", buf);
+	    //printf("buf: %s\n", buf);
         if (n == 1) {
             res = (char *) realloc(res, sizeof(char) * (old_len + chunck_len + 1));
             memcpy(res + old_len, buf, chunck_len);

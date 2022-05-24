@@ -8,7 +8,7 @@ add_subdirectory(graph_dialog)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(lab5 main.c)
+add_executable(lab5 main.c graph_dialog/work_with_data.c)
 
 target_link_libraries(dialog mylib)
 target_link_libraries(dialog mygraph)

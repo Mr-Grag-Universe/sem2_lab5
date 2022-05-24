@@ -132,6 +132,7 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
         all_v[i].pr = NULL;
         all_v[i].v = graph->vertexes+i;
         all_v[i].color = WHITE;
+        all_v[i].depth = -1;
     }
 
     Queue * q = Q_init();
@@ -153,17 +154,17 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
         all_v[ind].color = BLACK;
         depth = all_v[ind].depth+1;
         for (size_t i = 0; i < curr_v->out_list->number_of_el; ++i) {
-            ind = _index(graph->vertexes, graph->get_vertex(graph, list_el->vertex.info));
-            if (all_v[ind].color == WHITE) {
-                all_v[ind].color = GREY;
-                all_v[ind].depth = depth;
-                Q_add(q, all_v + ind, TAIL);
+            size_t child_ind = _index(graph->vertexes, graph->get_vertex(graph, list_el->vertex.info));
+            if (all_v[child_ind].color == WHITE) {
+                all_v[child_ind].color = GREY;
+                all_v[child_ind].depth = depth;
+                Q_add(q, all_v + child_ind, TAIL);
 
-                if (strcmp(all_v[ind].v->info, name) == 0) {
+                if (strcmp(all_v[child_ind].v->info, name) == 0) {
                     found = 1;
                     tr = realloc(tr, sizeof(Vertex*) * (number_of_v_in_tr+2));
-                    tr[number_of_v_in_tr] = all_v+_index(graph->vertexes, curr_v);
-                    tr[number_of_v_in_tr+1] = all_v+ind;
+                    tr[number_of_v_in_tr] = all_v+ind;
+                    tr[number_of_v_in_tr+1] = all_v+child_ind;
                     number_of_v_in_tr+=2;
                     break;
                 }
@@ -172,9 +173,9 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
         }
         if (!found) {
             tr = realloc(tr, sizeof(Vertex*) * (++number_of_v_in_tr));
-            tr[number_of_v_in_tr-1] = all_v+_index(graph->vertexes, curr_v);
+            tr[number_of_v_in_tr-1] = all_v+ind;
         }
-    } while (q->number_of_elements);
+    } while (q->number_of_elements && !found);
 
     if (!found) {
         free(tr);
@@ -188,12 +189,13 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
     Vertex ** path = calloc(depth+1, sizeof(Vertex*));
     path[depth] = tr[number_of_v_in_tr-1]->v;
     for (size_t i = number_of_v_in_tr-2; i < number_of_v_in_tr-1; --i) {
-        if (path[all_v[i].depth])
+        ind = _index(graph->vertexes, tr[i]->v);
+        if (path[all_v[ind].depth])
             continue;
 
-        depth = all_v[i].depth;
-        if (is_incidental(all_v[i].v, path[depth+1]->info)) {
-            path[depth] = all_v[i].v;
+        depth = all_v[ind].depth;
+        if (is_incidental(all_v[ind].v, path[depth+1]->info)) {
+            path[depth] = all_v[ind].v;
         }
     }
 
@@ -204,8 +206,8 @@ Vertex ** BFS(Graph * graph, Vertex * start_v, char * name, size_t * depth1) {
     return path;
 }
 
-Vertex ** DFS(Graph * graph) {
-    if (graph == NULL) {
+Vertex ** DFS(Graph * graph, Vertex * start_v) {
+    if (graph == NULL || graph->number_of_vertexes == 0) {
         return NULL;
     }
 
@@ -217,8 +219,12 @@ Vertex ** DFS(Graph * graph) {
         all_v[i].color = WHITE;
     }
 
+    if (start_v == NULL || _index(graph->vertexes, start_v) >= graph->number_of_vertexes) {
+        start_v = graph->vertexes;
+    }
+
     Queue * q = Q_init();
-    size_t ind = 0;
+    size_t ind = _index(graph->vertexes, start_v);
     all_v[ind].depth = 0;
     Q_add(q, all_v + ind, HEAD);
 
@@ -233,27 +239,24 @@ Vertex ** DFS(Graph * graph) {
             curr_v = el->v;
             AdjacencyListEl * list_el = curr_v->out_list->head;
             ind = _index(graph->vertexes, curr_v);
-            bool flag = 1;
+
+            // добавляем вершину в массив обхода
+            all_v[ind].color = BLACK;
+            depth = all_v[ind].depth+1;
+            tr = realloc(tr, sizeof(Vertex*) * (++number_of_v_in_tr));
+            tr[number_of_v_in_tr-1] = all_v+_index(graph->vertexes, curr_v);
+
             for (size_t i = 0; i < curr_v->out_list->number_of_el; ++i) {
                 ind = _index(graph->vertexes, graph->get_vertex(graph, list_el->vertex.info));
                 if (all_v[ind].color == WHITE) {
                     all_v[ind].color = GREY;
                     all_v[ind].depth = depth;
                     Q_add(q, all_v + ind, HEAD);
-                    flag = 0;
-                    break;
                 }
                 list_el = list_el->next;
             }
-            if (flag) {
-                all_v[ind].color = BLACK;
-                depth = all_v[ind].depth+1;
-
-                tr = realloc(tr, sizeof(Vertex*) * (++number_of_v_in_tr));
-                tr[number_of_v_in_tr-1] = all_v+_index(graph->vertexes, curr_v);
-            }
-
         } while (q->number_of_elements);
+
         if (number_of_v_in_tr < graph->number_of_vertexes) {
             for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
                 if (all_v[i].color == WHITE) {
@@ -276,13 +279,84 @@ Vertex ** DFS(Graph * graph) {
     return vertexes;
 }
 
-Vertex ** top_sort(Graph * graph) {
+Vertex ** top_sort(Graph * graph, Vertex * start_v) {
     if (graph == NULL) {
-        fprintf(stderr, "graph is NULL in top-sort.\n");
         return NULL;
     }
 
-    Vertex ** order = calloc(graph->number_of_vertexes, sizeof(Vertex*));
+    El * all_v = malloc(graph->number_of_vertexes * sizeof(El));
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+        all_v[i].next = NULL;
+        all_v[i].pr = NULL;
+        all_v[i].v = graph->vertexes+i;
+        all_v[i].color = WHITE;
+        all_v[i].depth = 0;
+    }
 
-    return order;
+    if (start_v == NULL || _index(graph->vertexes, start_v) >= graph->number_of_vertexes) {
+        start_v = graph->vertexes;
+    }
+
+    Queue * q = Q_init();
+    size_t ind = _index(graph->vertexes, start_v);
+    all_v[ind].depth = 0;
+    all_v[ind].color = GREY;
+    Q_add(q, all_v + ind, HEAD);
+
+    El ** tr = NULL;
+    size_t number_of_v_in_tr = 0;
+
+    Vertex * curr_v = NULL;
+    do {
+        do {
+            El * el = Q_pop(q, HEAD);
+            curr_v = el->v;
+            AdjacencyListEl * list_el = curr_v->out_list->head;
+            ind = _index(graph->vertexes, curr_v);
+            bool flag = 1;
+            for (size_t i = 0; i < curr_v->out_list->number_of_el; ++i) {
+                size_t child_ind = _index(graph->vertexes, graph->get_vertex(graph, list_el->vertex.info));
+                if (all_v[child_ind].color == WHITE) {
+                    all_v[child_ind].color = GREY;
+                    Q_add(q, all_v + ind, HEAD);
+                    Q_add(q, all_v + child_ind, HEAD);
+                    flag = 0;
+                    break;
+                } else if (all_v[child_ind].color == GREY) {
+                    fprintf(stderr, "there is circle here.\n");
+                    free(tr);
+                    free(all_v);
+                    free(q);
+                    return NULL;
+                }
+                list_el = list_el->next;
+            }
+            if (flag) {
+                all_v[ind].color = BLACK;
+
+                tr = realloc(tr, sizeof(Vertex*) * (++number_of_v_in_tr));
+                tr[number_of_v_in_tr-1] = all_v + ind;
+            }
+        } while (q->number_of_elements);
+
+        if (number_of_v_in_tr < graph->number_of_vertexes) {
+            for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+                if (all_v[i].color == WHITE) {
+                    Q_add(q, all_v + i, HEAD);
+                    break;
+                }
+            }
+        }
+    } while (number_of_v_in_tr < graph->number_of_vertexes);
+
+    Vertex ** vertexes = calloc(graph->number_of_vertexes, sizeof(Vertex*));
+    for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
+        vertexes[i] = tr[i]->v;
+    }
+
+    free(tr);
+    free(all_v);
+    free(q);
+
+    return vertexes;
 }

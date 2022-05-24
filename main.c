@@ -26,9 +26,9 @@ char ** init_menu_points() {
     menu_points[BFSc] = "BFS";
     menu_points[DFSc] = "DFS";
     menu_points[BFAc] = "Bellman-Ford algorithm";
+    menu_points[TOP_SORT] = "topological sort";
     menu_points[FIND_VERTEX] = "find an vertex";
     menu_points[DELETE_ALl] = "delete all";
-    menu_points[TRAVERSAL] = "graph traversal";
     menu_points[TIMING] = "check out time";// of traversal and searching in BT";
     menu_points[RANDOM_GENERATE] = "generate random graph data";
     menu_points[READ_GRAPH] = "read graph from file";
@@ -95,9 +95,8 @@ bool execute_command(Graph ** graph, Command command) {
             *graph = graph_init(NULL, NULL);
             return false;
         }
-        case TRAVERSAL: {
-            char * answer = get_line();
-            free(answer);
+        case TOP_SORT: {
+            graph_top_sort_dialog(*graph);
             return false;
         }
         case TIMING: {
@@ -147,8 +146,8 @@ Command get_command_code(char * command) {
         return DFSc;
     else if (!strcmp(command, "BFA"))
         return BFAc;
-    else if (!strcmp(command, "traversal"))
-        return TRAVERSAL;
+    else if (!strcmp(command, "TS"))
+        return TOP_SORT;
     else if (!strcmp(command, "time"))
         return TIMING;
     else if (!strcmp(command, "read"))
@@ -159,7 +158,7 @@ Command get_command_code(char * command) {
 }
 
 Graph * start_session() {
-    Graph * graph = graph_init(NULL, NULL);
+    Graph * graph = read_graph();//graph_init(NULL, NULL);
     return graph;
 }
 
