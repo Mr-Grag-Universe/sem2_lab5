@@ -17,10 +17,12 @@ Graph * graph_init(Vertex ** vertexes, Edge ** edges) {
         exit(MEMORY_OVERFLOW);
     }
 
-    graph->vertexes = NULL;
-    graph->edges = NULL;
+    graph->vertexes = malloc(sizeof(Vertex));
+    graph->edges = malloc(sizeof(Vertex));
     graph->number_of_edges = 0;
     graph->number_of_vertexes = 0;
+    graph->size_v = 1;
+    graph->size_e = 1;
 
     graph->add_vertex = graph_add_vertex;
     graph->add_edge = graph_add_edge;
@@ -48,9 +50,11 @@ Error graph_add_vertex(Graph * graph, Vertex * vertex) {
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
 
-    graph->vertexes = realloc(graph->vertexes, sizeof(Vertex) * (graph->number_of_vertexes + 1));
+    if (graph->number_of_vertexes == graph->size_v) {
+        graph->size_v *= 2;
+        graph->vertexes = realloc(graph->vertexes, sizeof(Vertex) * (graph->size_v + 1));
+    }
     vertex_copy(graph->vertexes + graph->number_of_vertexes, vertex);
-
     graph->number_of_vertexes++;
 
     return IT_IS_OK;
@@ -97,7 +101,11 @@ Error graph_add_edge(Graph * graph, Edge * edge) {
 //        v1->in_list->add(v1->in_list, edge->v2, edge->weight);
     }
 
-    graph->edges = realloc(graph->edges, sizeof(Edge*) * (graph->number_of_edges + 1));
+    if (graph->number_of_edges == graph->size_e) {
+        graph->size_e *= 2;
+        graph->edges = realloc(graph->edges, sizeof(Edge) * (graph->size_e + 1));
+    }
+    //graph->edges = realloc(graph->edges, sizeof(Edge*) * (graph->number_of_edges + 1));
     graph->edges[graph->number_of_edges] = edge;
 
     graph->number_of_edges++;

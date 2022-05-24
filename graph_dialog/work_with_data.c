@@ -10,6 +10,82 @@
 #include "MyString.h"
 #include "mygraph.h"
 
+
+Vertex vertex_e(char * name) {
+    char * line = NULL;
+    do {
+        if (line)
+            free(line);
+        line = name;
+    } while (line == NULL || line[0] == '\0');
+
+    Vertex vertex = vertex_init(line);
+
+    return vertex;
+}
+
+Error add_vertex_l(Graph * graph, char * name) {
+    Vertex v = vertex_e(name);
+
+    Vertex * v1 = graph->get_vertex(graph, v.info);
+    if (v1) {
+        v.free(v);
+        return IT_IS_OK;
+    }
+
+    Error report = graph->add_vertex(graph, &v);
+
+    return report;
+}
+
+Edge * edge_e(char * name1, char * name2, double weight, bool enter_weight) {
+    //printf("Enter your label1: ");
+    //char * v1_label = NULL;
+    //do {
+    //    if (v1_label)
+    //        free(v1_label);
+    char * v1_label = name1;
+    //} while (v1_label == NULL || v1_label[0] == '\0');
+
+    // printf("Enter your label2: ");
+    char * v2_label = name2;
+//    do {
+//        if (v2_label)
+//            free(v2_label);
+//        v2_label = name2;
+//    } while (v2_label == NULL || v2_label[0] == '\0');
+
+    Vertex v1 = vertex_init(v1_label);
+    Vertex v2 = vertex_init(v2_label);
+
+    Edge * edge = edge_init(v1, v2, V1_to_V2, 1);
+    if (enter_weight) {
+        edge->weight = weight;
+    }
+
+    return edge;
+}
+
+Error add_edge_l(Graph * graph, char * name1, char * name2, double weight) {
+    Edge * edge = edge_e(name1, name2, weight, 0);
+
+    Vertex * v1 = graph->get_vertex(graph, edge->v1.info);
+    Vertex * v2 = graph->get_vertex(graph, edge->v2.info);
+
+    if (v1 == NULL || v2 == NULL) {
+        return WRONG_INPUT_FROM_STREAM;
+    }
+    edge->v1.free(edge->v1);
+    edge->v2.free(edge->v2);
+    vertex_copy(&edge->v1, v1);
+    vertex_copy(&edge->v2, v2);
+    // можно сделать добавление если нет вершины
+
+    Error report = graph->add_edge(graph, edge);
+
+    return report;
+}
+
 Graph * read_graph() {
     FILE * file = fopen("data.txt", "r");
     if (file == NULL) {
@@ -64,7 +140,7 @@ Graph * read_graph() {
 //        } else {
 //            free(numbers[2]);
 //        }
-
+/*
         Vertex v1 = vertex_init(numbers[1]);
         Vertex v2 = vertex_init(numbers[2]);
 
@@ -88,10 +164,18 @@ Graph * read_graph() {
             vertex_copy(&v2, vv2);
         }
 
-        double weight = atof(numbers[3]);
 
         Edge * edge = edge_init(*vv1, *vv2, V1_to_V2, weight);
         graph->add_edge(graph, edge);
+*/
+        double weight = atof(numbers[3]);
+
+        char * name1 = str_copy(numbers[1]);
+        char * name2 = str_copy(numbers[2]);
+
+        add_vertex_l(graph, numbers[1]);
+        add_vertex_l(graph, numbers[2]);
+        add_edge_l(graph, name1, name2, weight);
 
         long number = atol(numbers[0]);
         if (number % 1000 == 0)
@@ -99,10 +183,9 @@ Graph * read_graph() {
 
         free(numbers[0]);
         free(numbers[3]);
-        //free(numbers[4]);
         free(numbers);
 
-        if (number > 1000) {
+        if (number > 10000) {
             break;
         }
     }

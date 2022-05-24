@@ -96,6 +96,8 @@ struct Graph {
 
     Edge ** edges;
     size_t number_of_edges;
+    size_t size_v;
+    size_t size_e;
 
     Error (*add_vertex)(Graph *, Vertex *);
     Error (*free)(Graph * graph);
