@@ -198,14 +198,17 @@ Error graph_BFA_dialog(Graph * graph) {
     }
     Vertex * start_v = graph->get_vertex(graph, start_name);
     free(start_name);
+    if (start_v == NULL) {
+        start_v = graph->vertexes;
+    }
 
-    int * distance = BFA(graph, start_v);
+    double * distance = BFA(graph, start_v);
     if (distance == NULL) {
         printf("there is negative circle in this graph.\n");
         return NULL_PTR_IN_UNEXCITED_PLACE;
     }
     for (size_t i = 0; i < graph->number_of_vertexes; ++i) {
-        printf("%s: %d\n", graph->vertexes[i].info, distance[i]);
+        printf("%s: %lf\n", graph->vertexes[i].info, distance[i]);
     }
     free(distance);
 

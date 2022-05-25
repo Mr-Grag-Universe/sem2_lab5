@@ -17,3 +17,6 @@ target_link_libraries(mygraph mylib)
 
 target_link_libraries(lab5 mygraph)
 target_link_libraries(lab5 dialog)
+
+target_link_libraries(binary_tree mylib)
+target_link_libraries(mygraph binary_tree)
