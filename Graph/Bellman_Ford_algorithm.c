@@ -111,10 +111,12 @@ double * BFA(Graph * graph, Vertex * start_vertex) {
 
         if (distance[ind1] > distance[ind2] + e->weight) {
             free(distance);
+            free(indexes);
             fprintf(stderr, "there is negative weighted circle.\n");
             return NULL;
         }
     }
+    free(indexes);
 
     return distance;
 }
